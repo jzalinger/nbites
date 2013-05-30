@@ -1,4 +1,3 @@
-import man.noggin.kickDecider.HackKickInformation as hackKick
 
 def gameInitial(player):
     if player.firstFrame():

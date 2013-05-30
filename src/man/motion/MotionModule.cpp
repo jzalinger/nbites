@@ -436,51 +436,19 @@ void MotionModule::clipHeadJoints(std::vector<float>& joints)
     float yaw   = (float)fabs(joints[Kinematics::HEAD_YAW]);
     float pitch = joints[Kinematics::HEAD_PITCH];
 
-    if (yaw < 0.5f)
+    if (yaw < 1.2f)
     {
-        if (pitch > 0.46)
+        if (pitch > 0.3f)
         {
-            pitch = 0.46f;
+            pitch = 0.3f;
         }
     }
 
-    else if (yaw < 1.0f)
+    else
     {
-        if (pitch > 0.4f)
+        if (pitch > 0.25f)
         {
-            pitch = 0.4f;
-        }
-    }
-
-    else if (yaw < 1.32f)
-    {
-        if (pitch > 0.42f)
-        {
-            pitch = 0.42f;
-        }
-    }
-
-    else if (yaw < 1.57f)
-    {
-        //if (pitch > -0.2f)
-        //{
-        //    pitch = -0.2f;
-        //}
-        if (pitch > 0.2f)
-        {
-            pitch = 0.2f;
-        }
-    }
-
-    else if (yaw >= 1.57f)
-    {
-        //if (pitch > -0.3f)
-        //{
-        //    pitch = -0.3f;
-        //}
-        if (pitch > 0.2f)
-        {
-            pitch = 0.2f;
+            pitch = 0.25f;
         }
     }
 

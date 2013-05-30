@@ -278,3 +278,8 @@ class HeadTrackingHelper(object):
                 bestPost = p
                 minDiff = diff
         return bestPost
+
+    # Basic output for troubleshooting
+    def printHeadAngles(self):
+        print ("Cur yaw: "   + str(self.tracker.brain.interface.joints.head_yaw) +
+               "Cur pitch: " + str(self.tracker.brain.interface.joints.head_pitch))
