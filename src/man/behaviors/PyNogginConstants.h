@@ -96,6 +96,45 @@ static const float OPP_GOALBOX_MIDDLE_Y = (OPP_GOALBOX_BOTTOM_Y +
 static const float OPP_GOAL_MIDPOINT = (OPP_GOALBOX_RIGHT_X,
                                         OPP_GOALBOX_MIDDLE_Y);
 
+//my corners are relative to the perspective of my goalie
+static const float MY_CORNER_LEFT_L_X = FIELD_WHITE_LEFT_SIDELINE_X;
+static const float MY_CORNER_LEFT_L_Y = FIELD_WHITE_TOP_SIDELINE_Y;
+static const float MY_CORNER_RIGHT_L_X = FIELD_WHITE_LEFT_SIDELINE_X;
+static const float MY_CORNER_RIGHT_L_Y = FIELD_WHITE_BOTTOM_SIDELINE_Y;
+
+static const float MY_GOAL_LEFT_T_X = BLUE_GOALBOX_LEFT_X;
+static const float MY_GOAL_LEFT_T_Y = BLUE_GOALBOX_TOP_Y;
+static const float MY_GOAL_RIGHT_T_X = BLUE_GOALBOX_LEFT_X;
+static const float MY_GOAL_RIGHT_T_Y = BLUE_GOALBOX_BOTTOM_Y;
+
+static const float MY_GOAL_LEFT_L_X = BLUE_GOALBOX_RIGHT_X;
+static const float MY_GOAL_LEFT_L_Y = BLUE_GOALBOX_TOP_Y;
+static const float MY_GOAL_RIGHT_L_X = BLUE_GOALBOX_RIGHT_X;
+static const float MY_GOAL_RIGHT_l_Y = BLUE_GOALBOX_BOTTOM_Y;
+
+//center corners are relative to the perspective of my goalie
+static const float CENTER_LEFT_T_X = MIDFIELD_X;
+static const float CENTER_LEFT_T_Y = FIELD_WHITE_TOP_SIDELINE_Y;
+static const float CENTER_RIGHT_T_X = MIDFIELD_X;
+static const float CENTER_RIGHT_T_Y = FIELD_WHITE_BOTTOM_SIDELINE_Y;
+
+//opponents corners are relative to the perspective of their goalie
+static const float OPP_CORNER_LEFT_L_X = FIELD_WHITE_RIGHT_SIDELINE_X;
+static const float OPP_CORNER_LEFT_L_Y = FIELD_WHITE_BOTTOM_SIDELINE_Y;
+static const float OPP_CORNER_RIGHT_L_X = FIELD_WHITE_RIGHT_SIDELINE_X;
+static const float OPP_CORNER_RIGHT_L_Y = FIELD_WHITE_TOP_SIDELINE_Y;
+
+static const float OPP_GOAL_LEFT_T_X = YELLOW_GOALBOX_RIGHT_X;
+static const float OPP_GOAL_LEFT_T_Y = YELLOW_GOALBOX_BOTTOM_Y;
+static const float OPP_GOAL_RIGHT_T_X = YELLOW_GOALBOX_RIGHT_X;
+static const float OPP_GOAL_RIGHT_T_Y = YELLOW_GOALBOX_TOP_Y;
+
+static const float OPP_GOAL_LEFT_L_X = YELLOW_GOALBOX_LEFT_X;
+static const float OPP_GOAL_LEFT_L_Y = YELLOW_GOALBOX_BOTTOM_Y;
+static const float OPP_GOAL_RIGHT_L_X = YELLOW_GOALBOX_LEFT_X;
+static const float OPP_GOAL_RIGHT_l_Y = YELLOW_GOALBOX_TOP_Y;
+
+
 ///// LANDMARKS //////
 static const int NUM_LANDMARKS = 19;
 
@@ -140,6 +179,76 @@ static const int LANDMARK_OPP_GOAL_RIGHT_POST[3] =
 {(int) LANDMARK_OPP_GOAL_RIGHT_POST_X,
  (int) LANDMARK_OPP_GOAL_RIGHT_POST_Y,
  LANDMARK_OPP_GOAL_RIGHT_POST_ID};
+
+static const int LANDMARK_MY_CORNER_LEFT_L[3] =
+{(int) MY_CORNER_LEFT_L_X,
+ (int) MY_CORNER_LEFT_L_Y,
+ LANDMARK_MY_CORNER_LEFT_L_ID};
+
+static const int LANDMARK_MY_CORNER_RIGHT_L[3] =
+{(int) MY_CORNER_RIGHT_L_X,
+ (int) MY_CORNER_RIGHT_L_Y,
+ LANDMARK_MY_CORNER_RIGHT_L_ID};
+
+static const int LANDMARK_MY_GOAL_LEFT_L[3] =
+{(int) MY_GOAL_LEFT_L_X,
+ (int) MY_GOAL_LEFT_L_Y,
+ LANDMARK_MY_GOAL_LEFT_L_ID};
+
+static const int LANDMARK_MY_GOAL_RIGHT_L[3] =
+{(int) MY_GOAL_RIGHT_L_X,
+ (int) MY_GOAL_RIGHT_L_Y,
+ LANDMARK_MY_GOAL_RIGHT_L_ID};
+
+static const int LANDMARK_MY_GOAL_LEFT_T[3] =
+{(int) MY_GOAL_LEFT_T_X,
+ (int) MY_GOAL_LEFT_T_Y,
+ LANDMARK_MY_GOAL_LEFT_T_ID};
+
+static const int LANDMARK_MY_GOAL_RIGHT_T[3] =
+{(int) MY_GOAL_RIGHT_T_X,
+ (int) MY_GOAL_RIGHT_T_Y,
+ LANDMARK_MY_GOAL_RIGHT_T_ID};
+
+static const int LANDMARK_CENTER_LEFT_T[3] =
+{(int) CENTER_LEFT_T_X,
+ (int) CENTER_LEFT_T_Y,
+ LANDMARK_CENTER_LEFT_T_ID};
+
+static const int LANDMARK_CENTER_RIGHT_T[3] =
+{(int) CENTER_RIGHT_T_X,
+ (int) CENTER_RIGHT_T_Y,
+ LANDMARK_CENTER_RIGHT_T_ID};
+
+static const int LANDMARK_OPP_CORNER_LEFT_L[3] =
+{(int) OPP_CORNER_LEFT_L_X,
+ (int) OPP_CORNER_LEFT_L_Y,
+ LANDMARK_OPP_CORNER_LEFT_L_ID};
+
+static const int LANDMARK_OPP_CORNER_RIGHT_L[3] =
+{(int) OPP_CORNER_RIGHT_L_X,
+ (int) OPP_CORNER_RIGHT_L_Y,
+ LANDMARK_OPP_CORNER_RIGHT_L_ID};
+
+static const int LANDMARK_OPP_GOAL_LEFT_L[3] =
+{(int) OPP_GOAL_LEFT_L_X,
+ (int) OPP_GOAL_LEFT_L_Y,
+ LANDMARK_OPP_GOAL_LEFT_L_ID};
+
+static const int LANDMARK_OPP_GOAL_RIGHT_L[3] =
+{(int) OPP_GOAL_RIGHT_L_X,
+ (int) OPP_GOAL_RIGHT_L_Y,
+ LANDMARK_OPP_GOAL_RIGHT_L_ID};
+
+static const int LANDMARK_OPP_GOAL_LEFT_T[3] =
+{(int) OPP_GOAL_LEFT_T_X,
+ (int) OPP_GOAL_LEFT_T_Y,
+ LANDMARK_OPP_GOAL_LEFT_T_ID};
+
+static const int LANDMARK_OPP_GOAL_RIGHT_T[3] =
+{(int) OPP_GOAL_RIGHT_T_X,
+ (int) OPP_GOAL_RIGHT_T_Y,
+ LANDMARK_OPP_GOAL_RIGHT_T_ID};
 
 static const int NUM_VIS_LANDMARKS = 6;
 

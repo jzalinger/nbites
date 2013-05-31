@@ -196,6 +196,76 @@ BOOST_PYTHON_MODULE(noggin_constants)
         LANDMARK_OPP_GOAL_RIGHT_POST[1],
         LANDMARK_OPP_GOAL_RIGHT_POST[2]);
 
+    scope().attr("LANDMARK_MY_CORNER_LEFT_L") = make_tuple(
+        LANDMARK_MY_CORNER_LEFT_L[0],
+        LANDMARK_MY_CORNER_LEFT_L[1],
+        LANDMARK_MY_CORNER_LEFT_L[2]);
+
+    scope().attr("LANDMARK_MY_CORNER_RIGHT_L") = make_tuple(
+        LANDMARK_MY_CORNER_RIGHT_L[0],
+        LANDMARK_MY_CORNER_RIGHT_L[1],
+        LANDMARK_MY_CORNER_RIGHT_L[2]);
+
+    scope().attr("LANDMARK_MY_GOAL_LEFT_L") = make_tuple(
+        LANDMARK_MY_GOAL_LEFT_L[0],
+        LANDMARK_MY_GOAL_LEFT_L[1],
+        LANDMARK_MY_GOAL_LEFT_L[2]);
+
+    scope().attr("LANDMARK_MY_GOAL_RIGHT_L") = make_tuple(
+        LANDMARK_MY_GOAL_RIGHT_L[0],
+        LANDMARK_MY_GOAL_RIGHT_L[1],
+        LANDMARK_MY_GOAL_RIGHT_L[2]);
+
+    scope().attr("LANDMARK_MY_GOAL_LEFT_T") = make_tuple(
+        LANDMARK_MY_GOAL_LEFT_T[0],
+        LANDMARK_MY_GOAL_LEFT_T[1],
+        LANDMARK_MY_GOAL_LEFT_T[2]);
+
+    scope().attr("LANDMARK_MY_GOAL_RIGHT_T") = make_tuple(
+        LANDMARK_MY_GOAL_RIGHT_T[0],
+        LANDMARK_MY_GOAL_RIGHT_T[1],
+        LANDMARK_MY_GOAL_RIGHT_T[2]);
+
+    scope().attr("LANDMARK_CENTER_LEFT_T") = make_tuple(
+        LANDMARK_CENTER_LEFT_T[0],
+        LANDMARK_CENTER_LEFT_T[1],
+        LANDMARK_CENTER_LEFT_T[2]);
+
+    scope().attr("LANDMARK_CENTER_RIGHT_T") = make_tuple(
+        LANDMARK_CENTER_RIGHT_T[0],
+        LANDMARK_CENTER_RIGHT_T[1],
+        LANDMARK_CENTER_RIGHT_T[2]);
+
+    scope().attr("LANDMARK_OPP_CORNER_LEFT_L") = make_tuple(
+        LANDMARK_OPP_CORNER_LEFT_L[0],
+        LANDMARK_OPP_CORNER_LEFT_L[1],
+        LANDMARK_OPP_CORNER_LEFT_L[2]);
+
+    scope().attr("LANDMARK_OPP_CORNER_RIGHT_L") = make_tuple(
+        LANDMARK_OPP_CORNER_RIGHT_L[0],
+        LANDMARK_OPP_CORNER_RIGHT_L[1],
+        LANDMARK_OPP_CORNER_RIGHT_L[2]);
+
+    scope().attr("LANDMARK_OPP_GOAL_LEFT_L") = make_tuple(
+        LANDMARK_OPP_GOAL_LEFT_L[0],
+        LANDMARK_OPP_GOAL_LEFT_L[1],
+        LANDMARK_OPP_GOAL_LEFT_L[2]);
+
+    scope().attr("LANDMARK_OPP_GOAL_RIGHT_L") = make_tuple(
+        LANDMARK_OPP_GOAL_RIGHT_L[0],
+        LANDMARK_OPP_GOAL_RIGHT_L[1],
+        LANDMARK_OPP_GOAL_RIGHT_L[2]);
+
+    scope().attr("LANDMARK_OPP_GOAL_LEFT_T") = make_tuple(
+        LANDMARK_OPP_GOAL_LEFT_T[0],
+        LANDMARK_OPP_GOAL_LEFT_T[1],
+        LANDMARK_OPP_GOAL_LEFT_T[2]);
+
+    scope().attr("LANDMARK_OPP_GOAL_RIGHT_T") = make_tuple(
+        LANDMARK_OPP_GOAL_RIGHT_T[0],
+        LANDMARK_OPP_GOAL_RIGHT_T[1],
+        LANDMARK_OPP_GOAL_RIGHT_T[2]);
+
     scope().attr("NUM_VIS_LANDMARKS") = NUM_VIS_LANDMARKS;
 
     enum_<vis_landmark>("vis_landmark")
