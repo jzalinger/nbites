@@ -377,11 +377,6 @@ void MotionModule::processMotionInput()
         {
             sendMotionCommand(headCommandInput_.message().scripted_command());
         }
-        else if (headCommandInput_.message().type() ==
-                 messages::HeadMotionCommand::COORD_HEAD_COMMAND)
-        {
-            sendMotionCommand(headCommandInput_.message().coord_command());
-        }
     }
 }
 
@@ -764,17 +759,6 @@ void MotionModule::sendMotionCommand(const messages::PositionHeadCommand& comman
             );
         headProvider.setCommand(setHeadCommand);
     }
-}
-
-void MotionModule::sendMotionCommand(const messages::CoordHeadCommand& command)
-{
-    nextHeadProvider = &headProvider;
-    // TODO: USE A CONSTANT FOR THIS (same as in HeadTrackingHelper.trackObject())
-    float pitch = TO_RAD * 20.0;
-    float yaw = TO_RAD * safe_atan2(command.rel_x(), command.rel_y());
-
-    SetHeadCommand::ptr setHeadCommand(new SetHeadCommand(yaw, pitch));
-    headProvider.setCommand(setHeadCommand);
 }
 
 void MotionModule::sendMotionCommand(const HeadJointCommand::ptr command)

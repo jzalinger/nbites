@@ -3,6 +3,7 @@ from ..util import MyMath as MyMath
 from .. import StiffnessModes
 from math import fabs, degrees
 import HeadMoves
+from objects import Location, RobotLocation, RelRobotLocation
 
 class HeadTrackingHelper(object):
     def __init__(self, tracker):
