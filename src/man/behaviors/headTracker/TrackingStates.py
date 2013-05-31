@@ -35,8 +35,8 @@ def trackingFieldObject(tracker):
 
 # Not currently used, but would be good functionality to have in the future.
 def lookAtTarget(tracker):
-    """Look to the localization coords of the stored target."""
-    tracker.helper.lookAtTarget(tracker.target)
+    """Look to the relative coords of the stored target, using localization."""
+    #tracker.helper.lookAtTarget(tracker.target)
     return tracker.stay()
 
 def lookStraightThenTrack(tracker):

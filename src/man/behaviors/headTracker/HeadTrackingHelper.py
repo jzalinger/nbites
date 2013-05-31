@@ -201,33 +201,17 @@ class HeadTrackingHelper(object):
 
         command.timestamp = int(self.tracker.brain.time * 1000)
 
-
-    # Unsafe to call... TODO: CoordHeadCommands for messages.
-    def lookAtTarget(self, target):
-
+    def lookAtTarget(self, rel_x, rel_y):
         '''
-        Hacked warning message.
-        Method is unsafe to call!!
+        Given relative coordinates, sends a command that will calculate
+        and set the necessary angles to look at those coordinates.
         '''
-        print ("HeadTrackingHelper.lookAtTarget method was called. METHOD IS UNSAFE! Looking in general direction of target in lieu of using target's exact loc values.")
-        self.lookToPoint(target)
+        command = self.tracker.brain.interface.headMotionCommand
+        command.type = command.CommandType.COORD_HEAD_COMMAND
 
-        # if hasattr(target, "height"):
-        #     height = target.height
-        # else:
-        #     height = 0
-
-        # if hasattr(target, "loc"):
-        #     target = target.loc
-
-        # print str(target.rel_x) + " " + str(target.rel_y)
-
-        # headMove = motion.CoordHeadCommand(relX = target.rel_x,
-        #                                    relY = target.rel_y,
-        #                                    relZ = height)
-
-        # self.tracker.brain.motion.coordHead(headMove)
-        # return headMove
+        command.coord_command.rel_x = rel_x
+        command.coord_command.rel_y = rel_y
+        command.timestamp = int(self.tracker.brain.time * 1000)
 
     def lookToPoint(self, target):
         """

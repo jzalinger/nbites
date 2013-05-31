@@ -149,5 +149,4 @@ class HeadTracker(FSA.FSA):
     def lookAtTarget(self, target):
         """Look towards given target, using localization values."""
         self.target = target
-        self.target.height = 0
         self.switchTo('lookAtTarget')
