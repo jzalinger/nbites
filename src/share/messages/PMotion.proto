@@ -67,12 +67,14 @@ message HeadMotionCommand
     enum CommandType {
         POS_HEAD_COMMAND = 0; // AKA set_head_command
         SCRIPTED_HEAD_COMMAND = 1;
+	COORD_HEAD_COMMAND = 2;
     }
 
     optional CommandType type = 1;
 
     optional PositionHeadCommand pos_command = 2;
     optional ScriptedHeadCommand scripted_command = 3;
+    optional CoordHeadCommand coord_command = 5;
 
     optional int64 timestamp = 4;
 }
@@ -102,6 +104,12 @@ message HeadJointCommand
     }
 
     optional InterpolationType interpolation = 4;
+}
+
+message CoordHeadCommand
+{
+    optional float rel_x = 1;
+    optional float rel_y = 2;
 }
 
 message JointAngles
