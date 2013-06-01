@@ -67,7 +67,6 @@ message HeadMotionCommand
     enum CommandType {
         POS_HEAD_COMMAND = 0; // AKA set_head_command
         SCRIPTED_HEAD_COMMAND = 1;
-	COORD_HEAD_COMMAND = 2;
     }
 
     optional CommandType type = 1;

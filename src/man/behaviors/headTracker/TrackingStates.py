@@ -39,6 +39,7 @@ def lookAtTarget(tracker):
     #tracker.helper.lookAtTarget(tracker.target)
     return tracker.stay()
 
+# Enters the corner state cycle
 def checkCorner(tracker):
     """
     Look to nearest corner for localization, then return to tracking the ball.
@@ -50,18 +51,20 @@ def checkCorner(tracker):
         tracker.helper.lookToNearestCornerWithinDist(100)
         return tracker.stay()
 
+# Part of the corner state cycle
 def waitThenTrack(tracker):
     if tracker.counter > constants.CORNER_CHECK_TIME:
         return tracker.goLater('returnPanAndTrack')
 
     return tracker.stay()
 
+# Part of the corner state cycle
 def returnPanAndTrack(tracker):
     if tracker.counter == 1:
         tracker.target = tracker.brain.ball.vis
         tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
         return tracker.stay()
-    elif not tracker.helper.isActive() or tracker.target.on:
+    elif not tracker.helper.isActive() or tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
         return tracker.goLater('tracking')
 
 def lookStraightThenTrack(tracker):
@@ -101,7 +104,7 @@ def fullPan(tracker):
         # Smartly start the pan
         tracker.helper.startingPan(HeadMoves.FIXED_PITCH_PAN)
 
-    if not tracker.brain.motion.head_is_active:
+    if not tracker.helper.isActive():
         # Repeat the pan
         tracker.helper.executeHeadMove(HeadMoves.FIXED_PITCH_PAN)
 

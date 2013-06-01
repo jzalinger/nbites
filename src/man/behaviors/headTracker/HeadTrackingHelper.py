@@ -197,17 +197,19 @@ class HeadTrackingHelper(object):
 
         command.timestamp = int(self.tracker.brain.time * 1000)
 
+    # Functionality mostly replaced by other methods. unsafe to call as of 6/1/13
     def lookAtTarget(self, rel_x, rel_y):
         '''
         Given relative coordinates, sends a command that will calculate
         and set the necessary angles to look at those coordinates.
         '''
-        command = self.tracker.brain.interface.headMotionCommand
-        command.type = command.CommandType.COORD_HEAD_COMMAND
+        pass
+        # command = self.tracker.brain.interface.headMotionCommand
+        # command.type = command.CommandType.COORD_HEAD_COMMAND
 
-        command.coord_command.rel_x = rel_x
-        command.coord_command.rel_y = rel_y
-        command.timestamp = int(self.tracker.brain.time * 1000)
+        # command.coord_command.rel_x = rel_x
+        # command.coord_command.rel_y = rel_y
+        # command.timestamp = int(self.tracker.brain.time * 1000)
 
     # TODO: make robust when target doesn't have a rel_y attribute
     def lookToPoint(self, target):
