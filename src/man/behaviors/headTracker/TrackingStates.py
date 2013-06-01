@@ -16,9 +16,9 @@ def tracking(tracker):
     # If the target is not in vision, trackObject will track via loc.
     tracker.helper.trackObject()
 
-    if not tracker.target.vis.on and tracker.counter > 15:
+    if not tracker.target.on and tracker.counter > 15:
         if DEBUG : tracker.printf("Missing object this frame",'cyan')
-        if (tracker.target.vis.frames_off >
+        if (tracker.target.frames_off >
             constants.TRACKER_FRAMES_OFF_REFIND_THRESH):
             return tracker.goLater('fullPan')
 
@@ -58,10 +58,10 @@ def waitThenTrack(tracker):
 
 def returnPanAndTrack(tracker):
     if tracker.counter == 1:
-        tracker.target = tracker.brain.ball
+        tracker.target = tracker.brain.ball.vis
         tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
         return tracker.stay()
-    else if not tracker.helper.isActive() or tracker.target.vis.on:
+    else if not tracker.helper.isActive() or tracker.target.on:
         return tracker.goLater('tracking')
 
 def lookStraightThenTrack(tracker):
@@ -81,9 +81,9 @@ def lookStraightThenTrack(tracker):
         # Perform the head move to look straight ahead
         tracker.helper.executeHeadMove(HeadMoves.FIXED_PITCH_LOOK_STRAIGHT)
         # Make sure target is set right
-        tracker.target = tracker.brain.ball
+        tracker.target = tracker.brain.ball.vis
 
-    if tracker.target.vis.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
+    if tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
         tracker.trackBall()
 
     return tracker.stay()
@@ -110,7 +110,7 @@ def fullPan(tracker):
             return tracker.goLater('trackingFieldObject')
 
     if (isinstance(tracker.target, BallModel.messages.FilteredBall) and
-        tracker.brain.ball.vis.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH):
+        target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH):
         return tracker.goLater('tracking')
 
     return tracker.stay()

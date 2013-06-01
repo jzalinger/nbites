@@ -127,16 +127,10 @@ class HeadTrackingHelper(object):
         changeX, changeY = 0.0, 0.0
 
         # If we cannot see the target, abort.
-        if not (target # target is null
-                or (target.rel_x == 0.0 and target.rel_y == 0.0) # target is under us (info error)
-                or (target.vis.frames_off > 0 and target.vis.frames_off < 3)): # off frame, but under thresh
-# TODO: use a constant above
-            return
-
-        # If we haven't seen the target, look towards loc model.
-        if target.vis.frames_off > 3:
-# TODO: use a constant above
-            self.lookToPoint(target)
+        if not target.on:
+            # If we haven't seen the target, look towards loc model.
+            if target.frames_off > TrackingConstants.TRACKER_FRAMES_OFF_LOC_THRESH:
+                self.lookToPoint(target)
 # TODO: safeguard above call from errors due to calling every frame
 # TODO: use loc information and helper.lookAtTarget instead??
             return
@@ -144,7 +138,7 @@ class HeadTrackingHelper(object):
         # Assert: target is visible.
 
         # Find the target's angular distance from yaw center.
-        changeX = target.vis.angle_x_deg
+        changeX = target.angle_x_deg
         # ignore changeY: pitch is fixed
 
         curYaw   = degrees(self.tracker.brain.interface.joints.head_yaw)
@@ -157,14 +151,14 @@ class HeadTrackingHelper(object):
         newYaw = curYaw + safeChangeX
         # ignore newPitch: pitch is fixed
 
-        maxSpeed = 2.0 # TODO: use a constant
+        maxSpeed = TrackingConstants.MAX_PAN_SPEED
 
         # Set motion message fields
         command = self.tracker.brain.interface.headMotionCommand
         command.type = command.CommandType.POS_HEAD_COMMAND
 
         command.pos_command.head_yaw = newYaw
-        command.pos_command.head_pitch = 20.0 # TODO: MAKE A CONSTANT FOR THIS
+        command.pos_command.head_pitch = TrackingConstants.DEFAULT_HEAD_PITCH
         command.pos_command.max_speed_yaw = maxSpeed
         command.pos_command.max_speed_pitch = maxSpeed
 
@@ -186,7 +180,7 @@ class HeadTrackingHelper(object):
 
         #WOW this is ugly
         maxChange = 13.0
-        maxSpeed = 2.0
+        maxSpeed = TrackingConstants.MAX_PAN_SPEED
 
         # Warning- no gain is applied currently!
         safeChangeX = MyMath.clip(changeX, -maxChange, maxChange)
@@ -197,7 +191,7 @@ class HeadTrackingHelper(object):
         command.type = command.CommandType.POS_HEAD_COMMAND
 
         command.pos_command.head_yaw = newYaw
-        command.pos_command.head_pitch = 20.0 # TODO: MAKE A CONSTANT FOR THIS
+        command.pos_command.head_pitch = TrackingConstants.DEFAULT_HEAD_PITCH
         command.pos_command.max_speed_yaw = maxSpeed
         command.pos_command.max_speed_pitch = maxSpeed
 
@@ -215,15 +209,11 @@ class HeadTrackingHelper(object):
         command.coord_command.rel_y = rel_y
         command.timestamp = int(self.tracker.brain.time * 1000)
 
+    # TODO: make robust when target doesn't have a rel_y attribute
     def lookToPoint(self, target):
         """
         If the relative y is positive, look left. Otherwise, look right.
         """
-        if hasattr(target, "height"):
-            height = target.height
-        else:
-            height = 0
-
         if target.rel_y > 0:
             self.executeHeadMove(HeadMoves.FIXED_PITCH_LOOK_LEFT)
         else:

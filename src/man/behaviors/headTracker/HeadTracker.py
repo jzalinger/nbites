@@ -34,8 +34,8 @@ class HeadTracker(FSA.FSA):
         self.storedYaw = 0.0
 
         # Set object variables
-        self.target = self.brain.ball #default
-        # target should either be ball or instance of FieldObject
+        self.target = self.brain.ball.vis #default
+        # target should either be a visualBall or a FieldObject's visual_detection
 
 
     """Note that all API methods are safe to call every frame."""
@@ -105,7 +105,7 @@ class HeadTracker(FSA.FSA):
         When ball is in view, tracks via vision values.
         Once ball is gone for some time, switch to wide pans.
         """
-        self.target = self.brain.ball
+        self.target = self.brain.ball.vis
         if (self.currentState is not 'fullPan' and
                 self.currentState is not 'tracking'):
             self.switchTo('tracking')
@@ -142,7 +142,7 @@ class HeadTracker(FSA.FSA):
         After a kick, looks in the appropriate direction
         that the ball was kicked in.
         """
-        self.target = self.brain.ball
+        self.target = self.brain.ball.vis
         self.kickName = name
         self.switchTo('afterKickScan')
 
