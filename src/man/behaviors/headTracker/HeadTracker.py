@@ -150,9 +150,11 @@ class HeadTracker(FSA.FSA):
         """
         Look to nearest corner, then return to previous head
         angles and resume tracking the ball.
+        NOTE: must already be tracking the ball.
         """
-        self.storedYaw = degrees(self.brain.interface.joints.head_yaw)
-        self.switchTo('checkCorner')
+        if self.currentState is 'tracking':
+            self.storedYaw = degrees(self.brain.interface.joints.head_yaw)
+            self.switchTo('checkCorner')
 
     # Not currently used, but would be good functionality to have in the future.
     # TODO: add this functionality back in

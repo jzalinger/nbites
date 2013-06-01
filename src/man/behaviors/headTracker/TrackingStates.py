@@ -13,7 +13,7 @@ def tracking(tracker):
     While the target is visible, track it via vision values.
     If the target is lost, switches to fullPan.
     """
-    # If the target is not in vision, trackObjectFixedPitch will track via loc.
+    # If the target is not in vision, trackObject will track via loc.
     tracker.helper.trackObject()
 
     if not tracker.target.vis.on and tracker.counter > 15:
