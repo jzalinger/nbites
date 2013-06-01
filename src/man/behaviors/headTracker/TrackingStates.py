@@ -61,7 +61,7 @@ def returnPanAndTrack(tracker):
         tracker.target = tracker.brain.ball.vis
         tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
         return tracker.stay()
-    else if not tracker.helper.isActive() or tracker.target.on:
+    elif not tracker.helper.isActive() or tracker.target.on:
         return tracker.goLater('tracking')
 
 def lookStraightThenTrack(tracker):

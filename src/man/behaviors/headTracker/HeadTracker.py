@@ -34,7 +34,8 @@ class HeadTracker(FSA.FSA):
         self.storedYaw = 0.0
 
         # Set object variables
-        self.target = self.brain.ball.vis #default
+        self.target = None
+        # default target is brain.ball.vis
         # target should either be a visualBall or a FieldObject's visual_detection
 
 

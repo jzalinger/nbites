@@ -2,8 +2,9 @@
 def gameInitial(player):
     if player.firstFrame():
         player.gainsOn()
+        player.brain.tracker.helper.lookToNearestCornerWithinDist(10000)
 
-    player.brain.tracker.helper.printHeadAngles()
+    #player.brain.tracker.helper.printHeadAngles()
 
     return player.stay()
 

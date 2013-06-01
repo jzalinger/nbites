@@ -1,4 +1,5 @@
 import HeadMoves
+import noggin_constants
 
 MAX_PAN_SPEED = 2.0
 DEFAULT_HEAD_PITCH = 20.0
@@ -23,4 +24,20 @@ KICK_DICT = {"L_Side"           : HeadMoves.FIXED_PITCH_LOOK_RIGHT,
              "R_Long_Back"      : HeadMoves.FIXED_PITCH_LOOK_STRAIGHT,
              "L_Short_Back"     : HeadMoves.FIXED_PITCH_LOOK_STRAIGHT,
              "R_Short_Back"     : HeadMoves.FIXED_PITCH_LOOK_STRAIGHT}
+
+ALL_LANDMARK_CORNERS = (noggin_constants.LANDMARK_MY_CORNER_LEFT_L,
+                        noggin_constants.LANDMARK_MY_CORNER_RIGHT_L,
+                        noggin_constants.LANDMARK_MY_GOAL_LEFT_L,
+                        noggin_constants.LANDMARK_MY_GOAL_RIGHT_L,
+                        noggin_constants.LANDMARK_MY_GOAL_LEFT_T,
+                        noggin_constants.LANDMARK_MY_GOAL_RIGHT_T,
+                        noggin_constants.LANDMARK_CENTER_LEFT_T,
+                        noggin_constants.LANDMARK_CENTER_RIGHT_T,
+                        noggin_constants.LANDMARK_OPP_CORNER_LEFT_L,
+                        noggin_constants.LANDMARK_OPP_CORNER_RIGHT_L,
+                        noggin_constants.LANDMARK_OPP_GOAL_LEFT_L,
+                        noggin_constants.LANDMARK_OPP_GOAL_RIGHT_L,
+                        noggin_constants.LANDMARK_OPP_GOAL_LEFT_T,
+                        noggin_constants.LANDMARK_OPP_GOAL_RIGHT_T)
+
 # TODO: Test and improve these pans.

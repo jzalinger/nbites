@@ -1,5 +1,5 @@
 from . import TrackingConstants
-from .. import noggin_constants as Constants
+import noggin_constants as Constants
 from ..util import MyMath as MyMath
 from .. import StiffnessModes
 from math import fabs, degrees
@@ -238,7 +238,7 @@ class HeadTrackingHelper(object):
     # @method: minimizes delta yaw. not safe to call every frame.
     def lookToNearestCornerWithinDist(self, distance):
         self.cornerDistanceThreshold = distance
-        allCorners = map(self.cornerToRelRobotLocation, Constants.ALL_LANDMARK_CORNERS)
+        allCorners = map(self.cornerToRelRobotLocation, TrackingConstants.ALL_LANDMARK_CORNERS)
         closeCorners = filter(self.closerThanDist, allCorners)
         cornerYaws = map(self.yawDiffToLookAtTarget, closeCorners)
         sortedYaws = sorted(cornerYaws, key=fabs)
@@ -248,17 +248,17 @@ class HeadTrackingHelper(object):
     # @method: helper for filtering in self.getAllCornersWithinDist
     # @param corner: must be a location
     def closerThanDist(self, corner):
-        return self.brain.loc.distTo(corner) < self.cornerDistanceThreshold
+        return self.tracker.brain.loc.headDistTo(corner) < self.cornerDistanceThreshold
 
     # @param corner: tuple consisting of x, y, ID
     def cornerToRelRobotLocation(self, corner):
-        myLoc = self.brain.loc
+        myLoc = self.tracker.brain.loc
         target = RobotLocation(corner[0],corner[1],0)
-        return myLoc.getRelRobotLocationOf(target)
+        return myLoc.relativeRobotLocationOf(target)
 
     # @param target: must be a relRobotLocation
     def yawDiffToLookAtTarget(self, target):
-        bearing = self.brain.loc.getRelativeBearing(target)
+        bearing = self.tracker.brain.loc.getRelativeBearing(target)
         curYaw  = degrees(self.tracker.brain.interface.joints.head_yaw)
 
         yawDiff = bearing - curYaw

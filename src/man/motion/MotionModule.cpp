@@ -436,21 +436,27 @@ void MotionModule::clipHeadJoints(std::vector<float>& joints)
     float yaw   = (float)fabs(joints[Kinematics::HEAD_YAW]);
     float pitch = joints[Kinematics::HEAD_PITCH];
 
-    if (yaw < 1.2f)
+    if (yaw < 0.1f)
     {
-        if (pitch > 0.3f)
+        if (pitch > 0.5f)
         {
-            // Debugging for testing.
-            std::cout << "Clipping pitch to .3 radians!" << std::endl;
-            pitch = 0.3f;
+            pitch = 0.5f;
         }
     }
-
+    else if (yaw < 1.0f)
+    {
+        if (pitch > 0.35f)
+        {
+            // Debugging for testing 6/1/13
+            std::cout << "Clipping pitch to .35 radians!" << std::endl;
+            pitch = 0.35f;
+        }
+    }
     else
     {
         if (pitch > 0.25f)
         {
-            // Debugging for testing.
+            // Debugging for testing 6/1/13
             std::cout << "Clipping pitch to .25 radians!" << std::endl;
             pitch = 0.25f;
         }

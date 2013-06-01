@@ -122,6 +122,7 @@ namespace behaviors {
         // Other
         const degrees getRelativeBearing(Location& other);
         const float spinDirToPoint(Location& other);
+        const float hackDistTo(const RelRobotLocation& other);
 
         //For python
         boost::python::str toString();
