@@ -39,6 +39,31 @@ def lookAtTarget(tracker):
     #tracker.helper.lookAtTarget(tracker.target)
     return tracker.stay()
 
+def checkCorner(tracker):
+    """
+    Look to nearest corner for localization, then return to tracking the ball.
+    """
+    if not tracker.helper.isActive():
+        return tracker.goLater('waitThenTrack')
+
+    if tracker.counter == 1:
+        tracker.helper.lookToNearestCornerWithinDist(100)
+        return tracker.stay()
+
+def waitThenTrack(tracker):
+    if tracker.counter > constants.CORNER_CHECK_TIME:
+        return tracker.goLater('returnPanAndTrack')
+
+    return tracker.stay()
+
+def returnPanAndTrack(tracker):
+    if tracker.counter == 1:
+        tracker.target = tracker.brain.ball
+        tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
+        return tracker.stay()
+    else if not tracker.helper.isActive() or tracker.target.vis.on:
+        return tracker.goLater('tracking')
+
 def lookStraightThenTrack(tracker):
     """
     Perform a 'look straight' head move.

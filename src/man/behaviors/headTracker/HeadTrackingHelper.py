@@ -234,7 +234,7 @@ class HeadTrackingHelper(object):
         Returns a headmove that will make the robot
         look to the given yaw at an appropriate (fixed) pitch.
 
-        Note: Use as parameter for tracker.performHeadMove()
+        Note: Use as parameter for tracker.executeHeadMove()
         """
         if yaw > 55 or yaw < -55:
             pitch = 11.0
@@ -250,7 +250,7 @@ class HeadTrackingHelper(object):
         self.cornerDistanceThreshold = distance
         allCorners = map(self.cornerToRelRobotLocation, Constants.ALL_LANDMARK_CORNERS)
         closeCorners = filter(self.closerThanDist, allCorners)
-        cornerYaws = map(self.yawDiffToLookAtCorner, closeCorners)
+        cornerYaws = map(self.yawDiffToLookAtTarget, closeCorners)
         sortedYaws = sorted(cornerYaws, key=fabs)
 
         self.executeHeadMove(self.lookToAngle(sortedYaws[0]))
@@ -266,9 +266,9 @@ class HeadTrackingHelper(object):
         target = RobotLocation(corner[0],corner[1],0)
         return myLoc.getRelRobotLocationOf(target)
 
-    # @param corner: must be a relRobotLocation
-    def yawDiffToLookAtCorner(self, corner):
-        bearing = self.brain.loc.getRelativeBearing(corner)
+    # @param target: must be a relRobotLocation
+    def yawDiffToLookAtTarget(self, target):
+        bearing = self.brain.loc.getRelativeBearing(target)
         curYaw  = degrees(self.tracker.brain.interface.joints.head_yaw)
 
         yawDiff = bearing - curYaw
@@ -282,3 +282,7 @@ class HeadTrackingHelper(object):
     def printHeadAngles(self):
         print ("Cur yaw: "   + str(self.tracker.brain.interface.joints.head_yaw) +
                "Cur pitch: " + str(self.tracker.brain.interface.joints.head_pitch))
+
+    # Regardless of state, is the head moving?
+    def isActive(self):
+        return self.tracker.brain.motion.head_is_active

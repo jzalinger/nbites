@@ -3,6 +3,7 @@ from . import BasicStates
 from . import HeadTrackingHelper as helper
 from . import HeadMoves
 from ..util import FSA
+from math import degrees
 
 from .. import StiffnessModes as stiff
 
@@ -30,6 +31,7 @@ class HeadTracker(FSA.FSA):
         self.headMove = None
         self.lookDirection = None
         self.kickName = ""
+        self.storedYaw = 0.0
 
         # Set object variables
         self.target = self.brain.ball #default
@@ -143,6 +145,14 @@ class HeadTracker(FSA.FSA):
         self.target = self.brain.ball
         self.kickName = name
         self.switchTo('afterKickScan')
+
+    def checkCornerThenTrackBall(self):
+        """
+        Look to nearest corner, then return to previous head
+        angles and resume tracking the ball.
+        """
+        self.storedYaw = degrees(self.brain.interface.joints.head_yaw)
+        self.switchTo('checkCorner')
 
     # Not currently used, but would be good functionality to have in the future.
     # TODO: add this functionality back in
