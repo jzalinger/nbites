@@ -146,6 +146,7 @@ class HeadTracker(FSA.FSA):
 
     # Not currently used, but would be good functionality to have in the future.
     # TODO: add this functionality back in
+    # @param target: must be a relRobotLocation
     def lookAtTarget(self, target):
         """Look towards given target, using localization values."""
         self.target = target

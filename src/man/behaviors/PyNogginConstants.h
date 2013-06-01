@@ -110,7 +110,7 @@ static const float MY_GOAL_RIGHT_T_Y = BLUE_GOALBOX_BOTTOM_Y;
 static const float MY_GOAL_LEFT_L_X = BLUE_GOALBOX_RIGHT_X;
 static const float MY_GOAL_LEFT_L_Y = BLUE_GOALBOX_TOP_Y;
 static const float MY_GOAL_RIGHT_L_X = BLUE_GOALBOX_RIGHT_X;
-static const float MY_GOAL_RIGHT_l_Y = BLUE_GOALBOX_BOTTOM_Y;
+static const float MY_GOAL_RIGHT_L_Y = BLUE_GOALBOX_BOTTOM_Y;
 
 //center corners are relative to the perspective of my goalie
 static const float CENTER_LEFT_T_X = MIDFIELD_X;
@@ -132,7 +132,7 @@ static const float OPP_GOAL_RIGHT_T_Y = YELLOW_GOALBOX_TOP_Y;
 static const float OPP_GOAL_LEFT_L_X = YELLOW_GOALBOX_LEFT_X;
 static const float OPP_GOAL_LEFT_L_Y = YELLOW_GOALBOX_BOTTOM_Y;
 static const float OPP_GOAL_RIGHT_L_X = YELLOW_GOALBOX_LEFT_X;
-static const float OPP_GOAL_RIGHT_l_Y = YELLOW_GOALBOX_TOP_Y;
+static const float OPP_GOAL_RIGHT_L_Y = YELLOW_GOALBOX_TOP_Y;
 
 
 ///// LANDMARKS //////

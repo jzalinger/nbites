@@ -1,4 +1,5 @@
-from . import TrackingConstants as constants
+from . import TrackingConstants
+from .. import noggin_constants as Constants
 from ..util import MyMath as MyMath
 from .. import StiffnessModes
 from math import fabs, degrees
@@ -244,25 +245,38 @@ class HeadTrackingHelper(object):
                  2.0, 1, StiffnessModes.LOW_HEAD_STIFFNESSES),)
         # TODO: use constants above
 
-    # Consider updating this for new loc and vision systems (summer 2012)
-    # Currently broken in Portals system.
-    # TODO: scrap this or make it work.
-    def calculateClosestLandmark(self):
-        brain = self.tracker.brain
-        posts = [brain.yglp, brain.ygrp, brain.bgrp, brain.bglp]
+    # @method: minimizes delta yaw. not safe to call every frame.
+    def lookToNearestCornerWithinDist(self, distance):
+        self.cornerDistanceThreshold = distance
+        allCorners = map(self.cornerToRelRobotLocation, Constants.ALL_LANDMARK_CORNERS)
+        closeCorners = filter(self.closerThanDist, allCorners)
+        cornerYaws = map(self.yawDiffToLookAtCorner, closeCorners)
+        sortedYaws = sorted(cornerYaws, key=fabs)
 
-        currYaw = degrees(brain.interface.joints.head_yaw)
+        self.executeHeadMove(self.lookToAngle(sortedYaws[0]))
 
-        minDiff = 1000000000
-        bestPost = None
+    # @method: helper for filtering in self.getAllCornersWithinDist
+    # @param corner: must be a location
+    def closerThanDist(self, corner):
+        return self.brain.loc.distTo(corner) < self.cornerDistanceThreshold
 
-        for p in posts:
-            diff = MyMath.sub180Angle(currYaw - p.bearing)
+    # @param corner: tuple consisting of x, y, ID
+    def cornerToRelRobotLocation(self, corner):
+        myLoc = self.brain.loc
+        target = RobotLocation(corner[0],corner[1],0)
+        return myLoc.getRelRobotLocationOf(target)
 
-            if diff < minDiff:
-                bestPost = p
-                minDiff = diff
-        return bestPost
+    # @param corner: must be a relRobotLocation
+    def yawDiffToLookAtCorner(self, corner):
+        bearing = self.brain.loc.getRelativeBearing(corner)
+        curYaw  = degrees(self.tracker.brain.interface.joints.head_yaw)
+
+        yawDiff = bearing - curYaw
+
+        if fabs(bearing) > 119.5: # hardware joint limit
+            return -1
+        else:
+            return yawDiff
 
     # Basic output for troubleshooting
     def printHeadAngles(self):
