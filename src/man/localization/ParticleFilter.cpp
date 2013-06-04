@@ -56,31 +56,31 @@ void ParticleFilter::update(const messages::RobotLocation& odometryInput,
 
     // Update the Vision Model
     // set updated vision to determine if resampling necessary
-    updatedVision = visionSystem->update(particles, visionInput);
+    //updatedVision = visionSystem->update(particles, visionInput);
 
-    // Resample if vision update
-    if(updatedVision)
-    {
-        resample();
-        updatedVision = false;
+    // // Resample if vision update
+    // if(updatedVision)
+    // {
+    //     resample();
+    //     updatedVision = false;
 
-        //If shitty swarm according to vision, expand search
-        lost = (visionSystem->getLowestError() > LOST_THRESHOLD);
-        errorMagnitude = visionSystem->getLowestError()*ALPHA
-                             + errorMagnitude*(1-ALPHA);
-        if (errorMagnitude > 300)
-            errorMagnitude = 300;
-        // if (lost)
-        //     std::cout << "LOST! In the moment" << std::endl;
+    //     //If shitty swarm according to vision, expand search
+    //     lost = (visionSystem->getLowestError() > LOST_THRESHOLD);
+    //     errorMagnitude = visionSystem->getLowestError()*ALPHA
+    //                          + errorMagnitude*(1-ALPHA);
+    //     if (errorMagnitude > 300)
+    //         errorMagnitude = 300;
+    //     // if (lost)
+    //     //     std::cout << "LOST! In the moment" << std::endl;
 
-        // if (errorMagnitude > LOST_THRESHOLD)
-        //     std::cout << "LOST FOR A FUCKING WHILLLEEEEE" << std::endl;
+    //     // if (errorMagnitude > LOST_THRESHOLD)
+    //     //     std::cout << "LOST FOR A FUCKING WHILLLEEEEE" << std::endl;
 
-        // std::cout << "Not weighted avg error:\t" << visionSystem->getAvgError() << std::endl;
-        // std::cout << "weighted avg error:\t" << visionSystem->getWeightedAvgError() << std::endl;
-        // std::cout << "Best Particle error:\t" << visionSystem->getLowestError() << std::endl << std::endl;
+    //     // std::cout << "Not weighted avg error:\t" << visionSystem->getAvgError() << std::endl;
+    //     // std::cout << "weighted avg error:\t" << visionSystem->getWeightedAvgError() << std::endl;
+    //     // std::cout << "Best Particle error:\t" << visionSystem->getLowestError() << std::endl << std::endl;
 
-    }
+    // }
 
     // Update filters estimate
     updateEstimate();

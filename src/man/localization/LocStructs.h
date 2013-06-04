@@ -68,7 +68,7 @@ struct LocNormalParams
         {
         }
     LocNormalParams()
-        : sigma_x(10.0f), sigma_y(10.0f), sigma_h(.8f)
+        : sigma_x(0.1f), sigma_y(0.1f), sigma_h(.01f)
         {
         }
 

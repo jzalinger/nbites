@@ -48,7 +48,9 @@ void MotionSystem::update(ParticleSet& particles,
         // float changeH = deltaMotionInfo.h();
 
         // particle->shift(changeX, changeY, changeH);
-        randomlyShiftParticle(particle);
+
+        // ## HACK ## for testing
+        //randomlyShiftParticle(particle);
     }
 //            std::cout << "\n\n Updated Particles w/ Motion \n";
 }
