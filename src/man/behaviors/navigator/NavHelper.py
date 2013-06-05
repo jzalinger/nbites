@@ -59,9 +59,6 @@ def setDestination(nav, dest, gain = 1.0):
     """
     Calls setDestination within the motion engine
     """
-    # DEBUG PRINTING
-    print "Calling NavHelper.setDestination with dest = " + str(dest)
-
     # TODO: distinguish from setOdometryDestination method
     #       this method should overwrite motion commands.
     #       or, deprecate this method and use speed commands

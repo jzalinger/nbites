@@ -224,6 +224,7 @@ class Brain(object):
         self.loc = RobotLocation(self.interface.loc.x,
                                  self.interface.loc.y,
                                  self.interface.loc.h * (180. / pi))
+        print self.loc.h
 
     def resetLocTo(self, x, y, h):
         """

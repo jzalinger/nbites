@@ -72,6 +72,7 @@ void LocalizationModule::update()
     particleOutput.setMessage(swarmMessage);
 #endif
 
+
     output.setMessage(locMessage);
 }
 
