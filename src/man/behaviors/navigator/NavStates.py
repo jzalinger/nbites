@@ -44,6 +44,10 @@ def goToPosition(nav):
     goToPosition.lastFast = goToPosition.fast
 
     if goToPosition.fast:
+
+        # DEBUG PRINTING
+        print "goToPosition.fast is True!"
+
         velX, velY, velH = 0, 0, 0
 
         HEADING_ADAPT_CUTOFF = 103
