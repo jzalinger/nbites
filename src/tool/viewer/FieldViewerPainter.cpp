@@ -1,4 +1,5 @@
 #include "FieldViewerPainter.h"
+#include "NBMath.h"
 
 namespace tool {
 namespace viewer {
@@ -208,16 +209,25 @@ void FieldViewerPainter::paintOdometry(QPaintEvent* event,
 
     painter.setBrush(Qt::magenta);
 
-    // Assume starts at global origin (hint hint josh)
-    QPoint locCenter(odometry.x(), odometry.y());
+    float initX = BLUE_GOALBOX_RIGHT_X;
+    float initY = FIELD_WHITE_TOP_SIDELINE_Y;
+    float initH = HEADING_DOWN;
+
+    float adjustedX = initX + (odometry.x() * cos(initH)) + (odometry.y() * cos(initH+(PI/2)));
+    float adjustedY = initY + (odometry.x() * sin(initH)) + (odometry.y() * sin(initH+(PI/2)));
+
+    QPoint locCenter(adjustedX, adjustedY);
 
     painter.drawEllipse(locCenter,
                         10, 10);
 
-    painter.drawLine(odometry.x(),
-                     odometry.y(),
-                     10 * std::cos(odometry.h()) + odometry.x(),
-                     10 * std::sin(odometry.h()) + odometry.y());
+    painter.drawLine(adjustedX,
+                     adjustedY,
+                     10 * std::cos(odometry.h()+initH) + adjustedX,
+                     10 * std::sin(odometry.h()+initH) + adjustedY);
+
+    qDebug() << "Paint at (x, y, h):\t(" << odometry.x() << " , "
+              << odometry.y() << " , " << odometry.h() << " )";
 }
 
 void FieldViewerPainter::handleZoomIn()

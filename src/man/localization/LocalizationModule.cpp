@@ -43,13 +43,14 @@ void LocalizationModule::update()
     lastOdometry.set_y(curOdometry.y());
     lastOdometry.set_h(curOdometry.h());
 
+    // Maybe B-Human has a different coordinate frame for odometry...
     curOdometry.set_x(motionInput.message().x());
     curOdometry.set_y(motionInput.message().y());
     curOdometry.set_h(motionInput.message().h());
 
-    std::cout << "Odometry y: " << motionInput.message().y()
-              << ",    -x: " << motionInput.message().x()*-1
-              << ",     h: " << motionInput.message().h() << std::endl;
+    //std::cout << "Odometry y: " << motionInput.message().y()
+    //          << ",    -x: " << motionInput.message().x()*-1
+    //          << ",     h: " << motionInput.message().h() << std::endl;
 
     deltaOdometry.set_x(curOdometry.x() - lastOdometry.x());
     deltaOdometry.set_y(curOdometry.y() - lastOdometry.y());
