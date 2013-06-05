@@ -47,6 +47,10 @@ void LocalizationModule::update()
     curOdometry.set_y(motionInput.message().y());
     curOdometry.set_h(motionInput.message().h());
 
+    std::cout << "Odometry y: " << motionInput.message().y()
+              << ",    -x: " << motionInput.message().x()*-1
+              << ",     h: " << motionInput.message().h() << std::endl;
+
     deltaOdometry.set_x(curOdometry.x() - lastOdometry.x());
     deltaOdometry.set_y(curOdometry.y() - lastOdometry.y());
     deltaOdometry.set_h(curOdometry.h() - lastOdometry.h());
