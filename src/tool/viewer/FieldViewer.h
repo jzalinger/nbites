@@ -55,6 +55,7 @@ protected:
     QCheckBox* particleViewBox;
     QCheckBox* locationViewBox;
     QCheckBox* robotFieldViewBox;
+    QCheckBox* odometryViewBox;
 
     QPushButton* zoomInButton;
     QPushButton* zoomOutButton;

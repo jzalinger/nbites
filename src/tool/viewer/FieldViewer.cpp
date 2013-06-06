@@ -19,6 +19,7 @@ FieldViewer::FieldViewer(QWidget* parent):
     particleViewBox = new QCheckBox("Particle Viewer",this);
     locationViewBox = new QCheckBox("Location Viewer", this);
     robotFieldViewBox = new QCheckBox("Robot Field Viewer",this);
+    odometryViewBox = new QCheckBox("Hack odometry test view",this);
 
     zoomInButton = new QPushButton("+", this);
     zoomOutButton = new QPushButton("-", this);
@@ -32,6 +33,7 @@ FieldViewer::FieldViewer(QWidget* parent):
     checkBoxes->addWidget(particleViewBox);
     checkBoxes->addWidget(locationViewBox);
     checkBoxes->addWidget(robotFieldViewBox);
+    checkBoxes->addWidget(odometryViewBox);
 
     resizeLayout->addWidget(zoomInButton);
     resizeLayout->addWidget(zoomOutButton);
@@ -43,6 +45,8 @@ FieldViewer::FieldViewer(QWidget* parent):
     connect(locationViewBox, SIGNAL(toggled(bool)), this,
             SLOT(noLogError()));
     connect(robotFieldViewBox, SIGNAL(toggled(bool)), this,
+            SLOT(noLogError()));
+    connect(odometryViewBox, SIGNAL(toggled(bool)), this,
             SLOT(noLogError()));
 
     // Connect the resize paintfield buttons
@@ -80,6 +84,18 @@ void FieldViewer::confirmParticleLogs(bool haveLogs)
 void FieldViewer::confirmOdometryLogs(bool haveLogs)
 {
     haveOdometryLogs = haveLogs;
+    if(haveLogs) {
+        connect(odometryViewBox, SIGNAL(toggled(bool)), fieldPainter,
+                SLOT(paintOdometryAction(bool)));
+        disconnect(odometryViewBox, SIGNAL(toggled(bool)), this,
+                   SLOT(noLogError()));
+    }
+    else {
+        disconnect(odometryViewBox, SIGNAL(toggled(bool)), fieldPainter,
+                SLOT(paintOdometryAction(bool)));
+        connect(odometryViewBox, SIGNAL(toggled(bool)), this,
+                   SLOT(noLogError()));
+    }
 }
 
 void FieldViewer::confirmLocationLogs(bool haveLogs)
@@ -142,7 +158,11 @@ void FieldViewer::run_()
         fieldPainter->updateWithObsvMessage(observationsIn.message());
     }
 
-}
+    if (haveOdometryLogs) {
+        odometryIn.latch();
+        fieldPainter->updateWithOdometryMessage(odometryIn.message());
+    }
 
+}
 } // namespace viewer
 } // namespace tool

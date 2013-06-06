@@ -9,7 +9,8 @@ FieldViewerPainter::FieldViewerPainter(QWidget* parent, float scaleFactor_) :
     PaintField(parent, scaleFactor_),
     shouldPaintParticles(false),
     shouldPaintLocation(false),
-    shouldPaintObsv(false)
+    shouldPaintObsv(false),
+    shouldPaintOdometry(false)
 {
 }
 
@@ -30,6 +31,11 @@ void FieldViewerPainter::paintObsvAction(bool state) {
     repaint();
 }
 
+void FieldViewerPainter::paintOdometryAction(bool state) {
+    shouldPaintOdometry = state;
+    repaint();
+}
+
 void FieldViewerPainter::paintEvent(QPaintEvent* event)
 {
     PaintField::paintEvent(event);
@@ -42,6 +48,9 @@ void FieldViewerPainter::paintEvent(QPaintEvent* event)
 
     if(shouldPaintObsv)
         paintObservations(event, curObsv);
+
+    if(shouldPaintOdometry)
+        paintOdometry(event, curOdometry);
 }
 
 void FieldViewerPainter::paintParticleSwarm(QPaintEvent* event,
@@ -190,6 +199,27 @@ void FieldViewerPainter::paintRobotLocation(QPaintEvent* event,
                      size * std::sin(loc.h()) + loc.y());
 }
 
+void FieldViewerPainter::paintOdometry(QPaintEvent* event,
+                                       messages::RobotLocation odometry)
+{
+    QPainter painter(this);
+    painter.translate(0,FIELD_GREEN_HEIGHT*scaleFactor);
+    painter.scale(scaleFactor, -scaleFactor);
+
+    painter.setBrush(Qt::magenta);
+
+    // Assume starts at global origin (hint hint josh)
+    QPoint locCenter(odometry.x(), odometry.y());
+
+    painter.drawEllipse(locCenter,
+                        10, 10);
+
+    painter.drawLine(odometry.x(),
+                     odometry.y(),
+                     10 * std::cos(odometry.h()) + odometry.x(),
+                     10 * std::sin(odometry.h()) + odometry.y());
+}
+
 void FieldViewerPainter::handleZoomIn()
 {
     scaleFactor += .1;
@@ -222,6 +252,14 @@ void FieldViewerPainter::updateWithObsvMessage(messages::VisionField newObservat
 {
     curObsv = newObservations;
     if(shouldPaintObsv) {
+        repaint();
+    }
+}
+
+void FieldViewerPainter::updateWithOdometryMessage(messages::RobotLocation newOdometry)
+{
+    curOdometry = newOdometry;
+    if(shouldPaintOdometry) {
         repaint();
     }
 }

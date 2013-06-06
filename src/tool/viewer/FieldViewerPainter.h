@@ -35,11 +35,13 @@ public:
     void updateWithLocationMessage(messages::RobotLocation newLoc);
     void updateWithParticleMessage(messages::ParticleSwarm newSwarm);
     void updateWithObsvMessage(messages::VisionField newObservations);
+    void updateWithOdometryMessage(messages::RobotLocation newOdometry);
 
 protected slots:
     void paintParticleAction(bool state);
     void paintLocationAction(bool state);
     void paintObsvAction(bool state);
+    void paintOdometryAction(bool state);
 
     void handleZoomIn();
     void handleZoomOut();
@@ -60,16 +62,22 @@ protected:
     void paintObservations(QPaintEvent* event,
                            messages::VisionField obsv);
 
+    // Paint odometry
+    void paintOdometry(QPaintEvent* event,
+                       messages::RobotLocation odometry);
+
     QPoint getRelLoc(float dist, float bear);
 
 private:
     bool shouldPaintParticles;
     bool shouldPaintLocation;
     bool shouldPaintObsv;
+    bool shouldPaintOdometry;
 
     messages::RobotLocation curLoc;
     messages::ParticleSwarm curSwarm;
     messages::VisionField curObsv;
+    messages::RobotLocation curOdometry;
 };
 
 } // namespace viewer
