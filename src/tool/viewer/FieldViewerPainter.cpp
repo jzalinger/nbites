@@ -210,7 +210,7 @@ void FieldViewerPainter::paintOdometry(QPaintEvent* event,
     painter.setBrush(Qt::magenta);
 
     float initX = BLUE_GOALBOX_RIGHT_X;
-    float initY = FIELD_WHITE_TOP_SIDELINE_Y;
+    float initY = MIDFIELD_Y;
     float initH = HEADING_DOWN;
 
     float adjustedX = initX + (odometry.x() * cos(initH)) + (odometry.y() * cos(initH+(PI/2)));
