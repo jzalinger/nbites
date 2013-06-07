@@ -211,22 +211,24 @@ void FieldViewerPainter::paintOdometry(QPaintEvent* event,
 
     float initX = BLUE_GOALBOX_RIGHT_X;
     float initY = MIDFIELD_Y;
-    float initH = HEADING_DOWN;
+    float initH = 180.0;
 
-    float adjustedX = initX + (odometry.x() * cos(initH)) + (odometry.y() * cos(initH+(PI/2)));
-    float adjustedY = initY + (odometry.x() * sin(initH)) + (odometry.y() * sin(initH+(PI/2)));
+    float adjustedX = initX + ((odometry.x()-122.957)*cos(initH)) + ((odometry.y()-363.151)*cos(initH+(PI/2)));
+    float adjustedY = initY + ((odometry.x()-122.957)*sin(initH)) + ((odometry.y()-363.151)*sin(initH+(PI/2)));
 
-    QPoint locCenter(adjustedX, adjustedY);
+    QPoint locCenter(odometry.x(), odometry.y());
 
     painter.drawEllipse(locCenter,
                         10, 10);
 
-    painter.drawLine(adjustedX,
-                     adjustedY,
-                     10 * std::cos(odometry.h()+initH) + adjustedX,
-                     10 * std::sin(odometry.h()+initH) + adjustedY);
+    painter.drawLine(odometry.x(),
+                     odometry.y(),
+                     10 * std::cos(odometry.h()) + odometry.x(),
+                     10 * std::sin(odometry.h()) + odometry.y());
 
-    qDebug() << "Paint at (x, y, h):\t(" << odometry.x() << " , "
+//    qDebug() << "Paint at (x, y, h):\t(" << adjustedX << " , "
+//              << adjustedY << " , " << odometry.h()+3.12722+initH << " )";
+    qDebug() << "Odometry at (x, y, h):\t(" << odometry.x() << " , "
               << odometry.y() << " , " << odometry.h() << " )";
 }
 

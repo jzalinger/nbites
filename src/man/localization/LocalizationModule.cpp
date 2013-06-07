@@ -39,7 +39,7 @@ void LocalizationModule::update()
     // Maybe B-Human has a different coordinate frame for odometry...
     // This is fucking absurd but I'm going to rotate the x and y by the h...
     float sinH, cosH;
-    sincosf(visionBall.bearing(), &sinH, &cosH);
+    sincosf(motionInput.message().h() , &sinH, &cosH);
     float rotatedX =   cosH*motionInput.message().x()
                      + sinH*motionInput.message().y();
     float rotatedY =   cosH*motionInput.message().y()

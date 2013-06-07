@@ -14,6 +14,7 @@ def gameInitial(player):
     Also, in the future, gameInitial may be responsible for turning off the gains
     """
     if player.firstFrame():
+        player.brain.interface.motionRequest.reset_odometry = True
         player.inKickingState = False
         player.gameState = player.currentState
         player.brain.fallController.enabled = False
