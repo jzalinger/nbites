@@ -224,7 +224,6 @@ class Brain(object):
         self.loc = RobotLocation(self.interface.loc.x,
                                  self.interface.loc.y,
                                  self.interface.loc.h * (180. / pi))
-        #print "Behavior x: " + str(self.loc.x-Constants.BLUE_GOALBOX_RIGHT_X) + ", y: " + str(self.loc.y-Constants.FIELD_WHITE_TOP_SIDELINE_Y) + ", h: " + str((self.loc.h+90)*3.14/180)
 
     def resetLocTo(self, x, y, h):
         """
@@ -248,8 +247,8 @@ class Brain(object):
                             Constants.HEADING_UP)
         elif self.playerNumber == 2:
             self.resetLocTo(Constants.BLUE_GOALBOX_RIGHT_X,
-                            Constants.MIDFIELD_Y,#Constants.FIELD_WHITE_TOP_SIDELINE_Y,
-                            180.0)#Constants.HEADING_DOWN)
+                            Constants.FIELD_WHITE_TOP_SIDELINE_Y,
+                            Constants.HEADING_DOWN)
         elif self.playerNumber == 3:
             self.resetLocTo(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
                             Constants.FIELD_WHITE_BOTTOM_SIDELINE_Y,

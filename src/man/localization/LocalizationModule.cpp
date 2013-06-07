@@ -13,13 +13,6 @@ LocalizationModule::LocalizationModule()
     particleFilter = new ParticleFilter();
     // Chooose on the field looking up as a random initial
     particleFilter->resetLocTo(100,100,0);
-
-    std::cout << "Logging localization? ";
-#ifdef LOG_LOCALIZATION
-    std::cout << "Yes." << std::endl;
-#else
-    std::cout << "No." << std::endl;
-#endif
 }
 
 LocalizationModule::~LocalizationModule()
@@ -47,10 +40,6 @@ void LocalizationModule::update()
     curOdometry.set_x(motionInput.message().x());
     curOdometry.set_y(motionInput.message().y());
     curOdometry.set_h(motionInput.message().h());
-
-    //std::cout << "Odometry y: " << motionInput.message().y()
-    //          << ",    -x: " << motionInput.message().x()*-1
-    //          << ",     h: " << motionInput.message().h() << std::endl;
 
     deltaOdometry.set_x(curOdometry.x() - lastOdometry.x());
     deltaOdometry.set_y(curOdometry.y() - lastOdometry.y());
@@ -84,7 +73,7 @@ void LocalizationModule::update()
 void LocalizationModule::run_()
 {
     // Profiler
-    PROF_ENTER(P_LOC);
+    PROF_ENTER(P_SELF_LOC);
 
     // Get new information
     motionInput.latch();
@@ -95,7 +84,7 @@ void LocalizationModule::run_()
     update();
 
     // Profiler
-    PROF_EXIT(P_LOC);
+    PROF_EXIT(P_SELF_LOC);
 }
 
 } // namespace localization

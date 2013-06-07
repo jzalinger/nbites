@@ -22,10 +22,8 @@ enum ProfiledComponent {
     P_COGNITION_THREAD = 0,
 
     P_TOP_DQBUF,
-    P_TOP_CONVERTER,
-
     P_BOT_DQBUF,
-    P_BOT_CONVERTER,
+    P_ACQUIRE_IMAGE,
 
     P_VISION,
     P_TRANSFORM,
@@ -77,6 +75,12 @@ enum ProfiledComponent {
 
     // COMM THREAD
     P_COMM_THREAD,
+    P_COMM_RECEIVE,
+    P_COMM_SEND,
+    P_COMM_BUILD_PACKET,
+    P_COMM_SERIALIZE_PACKET,
+    P_COMM_TO_SOCKET,
+    P_COMM_TIMER,
 
     // GUARDIAN THREAD
     P_GUARDIAN_THREAD,

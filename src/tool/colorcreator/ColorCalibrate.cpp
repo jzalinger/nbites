@@ -149,11 +149,6 @@ void ColorCalibrate::updateThresholdedImage() {
                                   QImage::Format_RGB32);
     }
 
-    //Seperates out the 3 parts of the YUV image
-    const messages::MemoryImage8 yImage = image.yImage();
-    const messages::MemoryImage8 uImage = image.uImage();
-    const messages::MemoryImage8 vImage = image.vImage();
-
     // Get the image being thresholded on
     if (currentCamera == Camera::TOP) {
         image = topImageIn.message();
@@ -161,11 +156,16 @@ void ColorCalibrate::updateThresholdedImage() {
         image = bottomImageIn.message();
     }
 
+    //Seperates out the 3 parts of the YUV image
+    const messages::MemoryImage8 yImage = image.yImage();
+    const messages::MemoryImage8 uImage = image.uImage();
+    const messages::MemoryImage8 vImage = image.vImage();
+
     //threshold the image
     for (int j = 0; j < thresholdedImage.height(); j++) {
         //We threshold an image by grabbing each line and thresholding that line
         QRgb* thresholdedImageLine = (QRgb*) (thresholdedImage.scanLine(j));
-        
+
         for (int i = 0; i < thresholdedImage.width(); i++) {
             image::Color color;
             //The division by two is because the u and v images are not as wide
