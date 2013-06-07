@@ -10,9 +10,9 @@
 #include <sys/time.h>
 
 #include "Profiler.h"
+#include "DebugConfig.h"
 
 namespace man {
-
 namespace comm {
 
 CommModule::CommModule(int team, int player) :
@@ -54,9 +54,9 @@ CommModule::~CommModule()
 
 void CommModule::run_()
 {
-    PROF_ENTER(P_COMM);
-
+    PROF_ENTER(P_COMM_RECEIVE);
     receive();
+    PROF_EXIT(P_COMM_RECEIVE);
 
     teamConnect->checkDeadTeammates(_worldModels,
                                     timer->timestamp(),
@@ -64,14 +64,28 @@ void CommModule::run_()
 
     burstRate = monitor->performHealthCheck(timer->timestamp());
 
+#ifdef LOG_COMM
     monitor->logOutput(timer->timestamp());
+#endif
 
+    PROF_ENTER(P_COMM_SEND);
     if (timer->timeToSend() && myPlayerNumber() > 0)
     {
         send();
     }
-
-    PROF_EXIT(P_COMM);
+    else
+    {
+// Make profiler happy. SO UGLY!!!
+PROF_ENTER(P_COMM_BUILD_PACKET);
+PROF_EXIT(P_COMM_BUILD_PACKET);
+PROF_ENTER(P_COMM_SERIALIZE_PACKET);
+PROF_EXIT(P_COMM_SERIALIZE_PACKET);
+PROF_ENTER(P_COMM_TO_SOCKET);
+PROF_EXIT(P_COMM_TO_SOCKET);
+PROF_ENTER(P_COMM_TIMER);
+PROF_EXIT(P_COMM_TIMER);
+    }
+    PROF_EXIT(P_COMM_SEND);
 }
 
 void CommModule::send()
@@ -80,8 +94,9 @@ void CommModule::send()
 
     teamConnect->send(_worldModelInput.message(), myPlayerNumber(),
                       gameConnect->myTeamNumber(), burstRate);
-
+    PROF_ENTER(P_COMM_TIMER);
     timer->teamPacketSent();
+    PROF_EXIT(P_COMM_TIMER);
 }
 
 void CommModule::receive()

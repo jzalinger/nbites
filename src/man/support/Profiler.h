@@ -18,13 +18,12 @@ class Profiler;
 #endif
 
 enum ProfiledComponent {
-    P_MAIN = 0,
+    // COGNITION THREAD
+    P_COGNITION_THREAD = 0,
 
     P_TOP_DQBUF,
-    P_TOP_ACQUIRE_IMAGE,
-
     P_BOT_DQBUF,
-    P_BOT_ACQUIRE_IMAGE,
+    P_ACQUIRE_IMAGE,
 
     P_VISION,
     P_TRANSFORM,
@@ -52,34 +51,46 @@ enum ProfiledComponent {
     P_FIT_UNUSED,
     P_INTERSECT_LINES,
 
-    P_LOC,
-    P_MCL,
-    P_LOGGING,
+    P_SELF_LOC,
+    P_BALL_TRACK,
 
+    P_BEHAVIORS,
     P_PYTHON,
 
     P_LIGHTS,
 
-    P_DCM,
+    // MOTION THREAD
+    P_MOTION_THREAD,
+
+    P_JOINT_ENACTOR,
     P_PRE_PROCESS,
     P_SEND_JOINTS,
     P_SEND_HARDNESS,
-    P_POST_PROCESS,
 
-    P_SWITCHBOARD,
+    P_MOTION,
     P_SCRIPTED,
     P_CHOPPED,
     P_WALK,
-    P_TICKLEGS,
     P_HEAD,
-    P_ENACTOR,
 
-    P_COMM,
+    // COMM THREAD
+    P_COMM_THREAD,
+    P_COMM_RECEIVE,
+    P_COMM_SEND,
+    P_COMM_BUILD_PACKET,
+    P_COMM_SERIALIZE_PACKET,
+    P_COMM_TO_SOCKET,
+    P_COMM_TIMER,
 
-    P_ROBOGUARDIAN,
+    // GUARDIAN THREAD
+    P_GUARDIAN_THREAD,
+
+    P_GUARDIAN,
+    P_AUDIO,
 
     P_TOTAL
 };
+
 static const int NUM_PCOMPONENTS = P_TOTAL + 1;
 
 class Profiler {

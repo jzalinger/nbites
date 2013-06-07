@@ -54,7 +54,7 @@ void GuardianModule::run_()
     fsrInput.latch();
     batteryInput.latch();
 
-    PROF_ENTER(P_ROBOGUARDIAN);
+    PROF_ENTER(P_GUARDIAN);
 
     countButtonPushes();
     checkFalling();
@@ -68,7 +68,7 @@ void GuardianModule::run_()
     checkAudio();
     frameCount++;
 
-    PROF_EXIT(P_ROBOGUARDIAN);
+    PROF_EXIT(P_GUARDIAN);
 }
 
 void GuardianModule::countButtonPushes()
@@ -329,9 +329,9 @@ void GuardianModule::checkBatteryLevels()
             {
                 playFile(energy_wav);
             }
+            lastBatteryCharge = newBatteryCharge;
         }
     }
-    lastBatteryCharge = newBatteryCharge;
 }
 
 void GuardianModule::checkTemperatures()
