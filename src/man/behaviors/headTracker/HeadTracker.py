@@ -32,6 +32,7 @@ class HeadTracker(FSA.FSA):
         self.lookDirection = None
         self.kickName = ""
         self.storedYaw = 0.0
+        self.postCornerState = ''
 
         # Set object variables
         self.target = None
@@ -154,8 +155,18 @@ class HeadTracker(FSA.FSA):
         NOTE: must already be tracking the ball.
         """
         if self.currentState is 'tracking':
+            self.postCornerState = 'tracking'
             self.storedYaw = degrees(self.brain.interface.joints.head_yaw)
             self.switchTo('checkCorner')
+
+    def checkCorner(self):
+        """
+        Look to nearest corner. After some time has passed,
+        repeat (might look at same corner again).
+        Designed to be used during the ready state.
+        """
+        self.postCornerState = 'checkCorner'
+        self.storedYaw = 0 # might want to change how this works
 
     # Not currently used, but would be good functionality to have in the future.
     # TODO: add this functionality back in

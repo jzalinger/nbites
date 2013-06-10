@@ -48,7 +48,7 @@ def checkCorner(tracker):
         return tracker.goLater('waitThenTrack')
 
     if tracker.counter == 1:
-        tracker.helper.lookToNearestCornerWithinDist(100)
+        tracker.helper.lookToNearestCornerWithinDist(200)
         return tracker.stay()
 
 # Part of the corner state cycle
@@ -65,7 +65,7 @@ def returnPanAndTrack(tracker):
         tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
         return tracker.stay()
     elif not tracker.helper.isActive() or tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
-        return tracker.goLater('tracking')
+        return tracker.goLater(tracker.postCornerState)
 
 def lookStraightThenTrack(tracker):
     """
