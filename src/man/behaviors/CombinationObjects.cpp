@@ -180,12 +180,12 @@ boost::python::str RobotLocation::toString()
 const float RobotLocation::hackDistTo(const RelRobotLocation& other)
 {
     // HACK for infinity values, shouldn't happen
-    if (isinf(other.x) || isinf(other.y)) {
+    if (isinf(other.getRelX()) || isinf(other.getRelY())) {
         std::cout << "INFINITY DISTANCE" << std::endl;
         return INFINITE_DISTANCE;
     }
 
-    return hypotf((other.y-y), (other.x-x));
+    return hypotf((other.getRelY()-y), (other.getRelX()-x));
 }
 
 //////////// RelLocation Methods ///////////////

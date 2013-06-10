@@ -49,7 +49,8 @@ def checkCorner(tracker):
 
     if tracker.counter == 1:
         tracker.helper.lookToNearestCornerWithinDist(200)
-        return tracker.stay()
+
+    return tracker.stay()
 
 # Part of the corner state cycle
 def waitThenTrack(tracker):
