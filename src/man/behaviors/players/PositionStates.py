@@ -14,6 +14,11 @@ def playbookPosition(player):
     if player.firstFrame():
         nav.positionPlaybook()
 
+    # In ready state, just keep checking corners.
+    if player.brain.gameController.currentState == 1: #HACK: use a constant or some such
+        brain.tracker.checkCorners()
+        return player.stay()
+
     if nav.isAtPosition():
         brain.tracker.trackBall()
     else:

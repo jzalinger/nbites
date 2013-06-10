@@ -159,7 +159,7 @@ class HeadTracker(FSA.FSA):
             self.storedYaw = degrees(self.brain.interface.joints.head_yaw)
             self.switchTo('checkCorner')
 
-    def checkCorner(self):
+    def checkCorners(self):
         """
         Look to nearest corner. After some time has passed,
         repeat (might look at same corner again).
@@ -167,6 +167,10 @@ class HeadTracker(FSA.FSA):
         """
         self.postCornerState = 'checkCorner'
         self.storedYaw = 0 # might want to change how this works
+        if (self.currentState is not 'checkCorner' and
+            self.currentState is not 'waitThenTrack' and
+            self.currentState is not 'returnPanAndTrack'):
+            self.switchTo('checkCorner')
 
     # Not currently used, but would be good functionality to have in the future.
     # TODO: add this functionality back in
