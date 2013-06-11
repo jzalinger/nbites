@@ -78,9 +78,9 @@ class HeadTrackingHelper(object):
         headMovePitch = headMove[1][0][1]
 
         destination = (headMoveYaw, headMovePitch)
-        self.executeHeadMoveWithSpeed(destination)
+        self.executeHeadMove(self.makeHeadMoveWithSpeed(destination))
 
-    def executeHeadMoveWithSpeed(destination, speed = TrackingConstants.DEFAULT_PAN_RATE):
+    def makeHeadMoveWithSpeed(destination, speed = TrackingConstants.DEFAULT_PAN_RATE):
         """
         Given the destination yaw and pitch and a speed (in degrees per second),
         calculates the difference from current joint angles and returns
@@ -99,7 +99,7 @@ class HeadTrackingHelper(object):
         totalTime = max(yawDiff, pitchDiff) / speed
 
         headMove = ( (destination, totalTime, 1, StiffnessModes.LOW_HEAD_STIFFNESSES), )
-        self.executeHeadMove(headMove)
+        return headMove
 
     # Should be generalized.
     def convertKickPan(self, headMove, invert):
@@ -234,7 +234,7 @@ class HeadTrackingHelper(object):
         else:
             self.executeHeadMove(HeadMoves.FIXED_PITCH_LOOK_RIGHT)
 
-    def lookToAngle(self, yaw, speed = 2.0):
+    def lookToAngle(self, yaw, time = 2.0):
         """
         Returns a headmove that will make the robot
         look to the given yaw at an appropriate (fixed) pitch.
@@ -246,9 +246,7 @@ class HeadTrackingHelper(object):
         else:
             pitch = 17.0
 
-        return (((yaw, pitch),
-                 speed, 1, StiffnessModes.LOW_HEAD_STIFFNESSES),)
-        # TODO: use constants above
+        return makeHeadMoveWithSpeed( (yaw,pitch) )
 
     # @method: minimizes delta yaw. not safe to call every frame.
     # Probably broken as of 6/11/13
@@ -288,7 +286,7 @@ class HeadTrackingHelper(object):
         yaw = myLoc.getRelativeBearing(location)
 
         if fabs(yaw) < 119.5: # within hardware joint limit
-            self.executeHeadMove(self.lookToAngle(yaw, .5)) #TODO: determine pan time better than this
+            self.executeHeadMove(self.lookToAngle(yaw)
 
         #print "DEBUG:"
         #print "corner's location: " + str(location.x) + ", " + str(location.y)
