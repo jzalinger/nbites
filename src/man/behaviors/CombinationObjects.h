@@ -121,9 +121,7 @@ namespace behaviors {
 
         // Other
         const degrees getRelativeBearing(Location& other);
-        const degrees hackGetRelativeBearing(RelRobotLocation& other);
         const float spinDirToPoint(Location& other);
-        const float hackDistTo(const RelRobotLocation& other);
 
         //For python
         boost::python::str toString();
@@ -134,9 +132,8 @@ namespace behaviors {
 
     /*
      * REL LOCATION
-     * A robot location that is created by specifying differences in
-     * x, y, and h from a given existing location. The dx, dy, and dh
-     * are also stored.
+     * A field location that is created by specifying differences in
+     * x and y from given existing locations. The relX and relY are stored.
      */
 
     class RelLocation
@@ -149,6 +146,8 @@ namespace behaviors {
         //Getters
         virtual const float getRelX() const { return relX; }
         virtual const float getRelY() const { return relY; }
+        // Note that getBearing returns in degrees, not radians.
+        // Also, not really a bearing. More like a global heading.
         virtual const degrees getBearing() const {
             return NBMath::safe_atan2(relY, relX) * TO_DEG;
         }
@@ -170,8 +169,8 @@ namespace behaviors {
     /*
      * REL LOCATION
      * A robot location that is created by specifying differences in
-     * x, y, and h from a given existing location. The dx, dy, and dh
-     * are also stored.
+     * x, y, and h from given existing robot locations. The relX, relY,
+     * and relH are stored.
      */
 
     class RelRobotLocation : public RelLocation

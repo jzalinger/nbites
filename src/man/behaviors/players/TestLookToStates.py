@@ -25,8 +25,8 @@ def gamePlaying(player):
                                 Constants.HEADING_LEFT)
         player.brain.tracker.checkCorners()
 
-    if player.counter < 3:
-        print "my loc is: " + str(player.brain.loc.x) + ", " + str(player.brain.loc.y) + ", " + str(player.brain.loc.h)
+    #if player.counter < 10:
+    #    print "my loc is: " + str(player.brain.loc.x) + ", " + str(player.brain.loc.y) + ", " + str(player.brain.loc.h)
 
     return player.stay()
     #return player.goLater('standup')

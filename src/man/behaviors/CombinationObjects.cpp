@@ -40,7 +40,9 @@ boost::python::tuple Location::toTupleXY()
     return boost::python::make_tuple(x, y);
 }
 
-RelLocation Location::getRelLocationOf(const Location& other) const {
+// @return: a RelLocation which uses the global frame of reference.
+RelLocation Location::getRelLocationOf(const Location& other) const
+{
     return other - *this;
 }
 
@@ -140,7 +142,9 @@ RobotLocation RobotLocation::operator+ (const RelRobotLocation& other) const
     return RobotLocation(x + other.getRelX(), y + other.getRelY(), h + other.getRelH());
 }
 
-RelRobotLocation RobotLocation::getRelRobotLocationOf(const RobotLocation& other) const {
+// @return: a RelRobotLocation that uses the robot's frame of reference.
+RelRobotLocation RobotLocation::getRelRobotLocationOf(const RobotLocation& other) const
+{
     RelRobotLocation relRobotLocation;
 
     float dx = other.x - x;
@@ -161,11 +165,6 @@ const degrees RobotLocation::getRelativeBearing(Location& other)
     return (NBMath::subPIAngle(headingToInRad(other) - h)) * TO_DEG;
 }
 
-const degrees RobotLocation::hackGetRelativeBearing(RelRobotLocation& other)
-{
-    return (NBMath::subPIAngle(NBMath::safe_atan2((other.getRelY()), (other.getRelX())) - h) * TO_DEG);
-}
-
 // Returns -1, 0, 1 to tell the robot which way to spin
 const float RobotLocation::spinDirToPoint(Location& other)
 {
@@ -180,17 +179,6 @@ boost::python::str RobotLocation::toString()
         ", y = " + boost::lexical_cast<std::string>(y) + ", h = " +
         boost::lexical_cast<std::string>(h*TO_DEG) + " (in degrees)";
     return *(new boost::python::str(info));
-}
-
-const float RobotLocation::hackDistTo(const RelRobotLocation& other)
-{
-    // HACK for infinity values, shouldn't happen
-    if (isinf(other.getRelX()) || isinf(other.getRelY())) {
-        std::cout << "INFINITY DISTANCE" << std::endl;
-        return INFINITE_DISTANCE;
-    }
-
-    return hypotf((other.getRelY()-y), (other.getRelX()-x));
 }
 
 //////////// RelLocation Methods ///////////////

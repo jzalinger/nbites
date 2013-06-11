@@ -221,26 +221,27 @@ class HeadTrackingHelper(object):
         else:
             self.executeHeadMove(HeadMoves.FIXED_PITCH_LOOK_RIGHT)
 
-    def lookToAngle(self, yaw):
+    def lookToAngle(self, yaw, speed = 2.0):
         """
         Returns a headmove that will make the robot
         look to the given yaw at an appropriate (fixed) pitch.
 
         Note: Use as parameter for tracker.executeHeadMove()
         """
-        if yaw > 55 or yaw < -55:
+        if fabs(yaw) > 55:
             pitch = 11.0
         else:
             pitch = 17.0
 
         return (((yaw, pitch),
-                 2.0, 1, StiffnessModes.LOW_HEAD_STIFFNESSES),)
+                 speed, 1, StiffnessModes.LOW_HEAD_STIFFNESSES),)
         # TODO: use constants above
 
     # @method: minimizes delta yaw. not safe to call every frame.
+    # Probably broken as of 6/11/13
     def lookToNearestCornerWithinDist(self, distance):
         self.cornerDistanceThreshold = distance
-        allCorners = map(self.cornerToRelRobotLocation, TrackingConstants.ALL_LANDMARK_CORNERS)
+        allCorners = map(self.cornerToRelLocation, TrackingConstants.ALL_LANDMARK_CORNERS)
         closeCorners = filter(self.closerThanDist, allCorners)
         cornerYaws = map(self.yawDiffToLookAtTarget, closeCorners)
         sortedYaws = sorted(cornerYaws, key=fabs)
@@ -250,44 +251,35 @@ class HeadTrackingHelper(object):
     # @method: helper for filtering in self.getAllCornersWithinDist
     # @param corner: must be a location
     def closerThanDist(self, corner):
-        return self.tracker.brain.loc.headDistTo(corner) < self.cornerDistanceThreshold
+        return self.tracker.brain.loc.distTo(corner) < self.cornerDistanceThreshold
 
     # @param corner: tuple consisting of x, y, ID
-    def cornerToRelRobotLocation(self, corner):
-        myLoc = self.tracker.brain.loc
-        target = RobotLocation(corner[0],corner[1],0)
+    def cornerToRelLocation(self, corner):
+        myLoc = RobotLocation(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
+                              Constants.LANDMARK_BLUE_GOAL_CROSS_Y,
+                              Constants.HEADING_LEFT)
+        target = Location(corner[0],corner[1])
 
-        print "my loc is: " + str(myLoc.x) + ", " + str(myLoc.y) + ", " + str(myLoc.h)
-        print "target loc is: " + str(target.x) + ", " + str(target.y)
+        #print "myLoc hard coded: " + myLoc.__str__()
+        #print "target loc: " + target.__str__()
 
-        return target - myLoc
-
-    # @param target: must be a relRobotLocation
-    def yawDiffToLookAtTarget(self, target):
-        bearing = self.tracker.brain.loc.hackGetRelativeBearing(target)
-        curYaw  = degrees(self.tracker.brain.interface.joints.head_yaw)
-
-        print "bearing is: " + str(bearing)
-        print "curYaw is: " + str(curYaw)
-
-        yawDiff = bearing - curYaw
-
-        if fabs(bearing) > 119.5: # hardware joint limit
-            return -1
-        else:
-            return yawDiff
+        return myLoc.relativeLocationOf(target)
 
     # Testing method
     def lookToStaticCorner(self):
-        corner = self.cornerToRelRobotLocation(Constants.LANDMARK_MY_GOAL_LEFT_L)
+        myLoc = RobotLocation(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
+                              Constants.LANDMARK_BLUE_GOAL_CROSS_Y,
+                              Constants.HEADING_LEFT)
+        corner = Constants.LANDMARK_MY_GOAL_LEFT_L
+        location = Location(corner[0], corner[1])
+        yaw = myLoc.getRelativeBearing(location)
 
-        print "(global) rel target loc is: " + str(corner.relX) + ", " + str(corner.relY)
+        if fabs(yaw) < 119.5: # within hardware joint limit
+            self.executeHeadMove(self.lookToAngle(yaw, .5)) #TODO: determine pan time better than this
 
-        yawDiff = self.yawDiffToLookAtTarget(corner)
-
-        print "executing helper method"
-        print "yawdiff is: " + str(yawDiff)
-        self.executeHeadMove(self.lookToAngle(yawDiff))
+        #print "DEBUG:"
+        #print "corner's location: " + str(location.x) + ", " + str(location.y)
+        #print "yaw: " + str(yaw)
 
     # Basic output for troubleshooting
     def printHeadAngles(self):

@@ -46,10 +46,9 @@ def checkCorner(tracker):
     """
     if tracker.counter == 0:
         #tracker.helper.lookToNearestCornerWithinDist(20000)
-        print "send command to helper: look to static corner"
         tracker.helper.lookToStaticCorner()
 
-    if not tracker.helper.isActive():
+    if tracker.counter > 0 and not tracker.helper.isActive():
         return tracker.goLater('waitThenTrack')
 
     return tracker.stay()
@@ -66,7 +65,7 @@ def returnPanAndTrack(tracker):
     if tracker.counter == 0:
         print "looking back to 0 yaw"
         tracker.target = tracker.brain.ball.vis
-        tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
+        tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw, 0.5))#TODO: determine speed better than this
         return tracker.stay()
     elif not tracker.helper.isActive() or tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
         return tracker.goLater(tracker.postCornerState)

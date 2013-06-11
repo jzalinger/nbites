@@ -38,10 +38,8 @@ BOOST_PYTHON_MODULE(objects)
         .def(self + other<RelRobotLocation>())
         .def("relativeRobotLocationOf", &RobotLocation::getRelRobotLocationOf)
         .def("getRelativeBearing", &RobotLocation::getRelativeBearing)
-        .def("hackGetRelativeBearing", &RobotLocation::hackGetRelativeBearing)
         .def("spinDirToPoint", &RobotLocation::spinDirToPoint)
         .def("__str__", &RobotLocation::toString)
-        .def("hackDistTo", &RobotLocation::hackDistTo)
         ;
 
     class_<RelLocation>("RelLocation", init<float, float>())
