@@ -77,16 +77,29 @@ class HeadTrackingHelper(object):
         headMoveYaw = headMove[1][0][0]
         headMovePitch = headMove[1][0][1]
 
-        #TODO do this math in C++
+        destination = (headMoveYaw, headMovePitch)
+        self.executeHeadMoveWithSpeed(destination)
+
+    def executeHeadMoveWithSpeed(destination, speed = TrackingConstants.DEFAULT_PAN_RATE):
+        """
+        Given the destination yaw and pitch and a speed (in degrees per second),
+        calculates the difference from current joint angles and returns
+        a tuple for executeHeadMove with the correct time.
+        """
+        headMoveYaw = destination[0]
+        headMovePitch = destination[1]
+
+        # We should probably move this math to C++ if possible.
         curYaw = degrees(self.tracker.brain.interface.joints.head_yaw)
-        degreesPerSecond = 80 #fast, but hopefully won't destabilize the walk much
+        curPitch = degrees(self.tracker.brain.interface.joints.head_pitch)
+
         yawDiff = MyMath.fabs(curYaw - headMoveYaw)
-        totalTime = yawDiff/degreesPerSecond
+        pitchDiff = MyMath.fabs(curPitch - headMovePitch)
 
-        newHeadMove = ( ((headMoveYaw,headMovePitch), totalTime, 1,
-                         StiffnessModes.LOW_HEAD_STIFFNESSES), )
+        totalTime = max(yawDiff, pitchDiff) / speed
 
-        self.executeHeadMove(newHeadMove)
+        headMove = ( (destination, totalTime, 1, StiffnessModes.LOW_HEAD_STIFFNESSES), )
+        self.executeHeadMove(headMove)
 
     # Should be generalized.
     def convertKickPan(self, headMove, invert):
