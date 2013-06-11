@@ -457,8 +457,6 @@ void MotionModule::clipHeadJoints(std::vector<float>& joints)
     {
         if (pitch > 0.35f)
         {
-            // Debugging for testing 6/1/13
-            std::cout << "Clipping pitch to .35 radians!" << std::endl;
             pitch = 0.35f;
         }
     }
@@ -466,8 +464,6 @@ void MotionModule::clipHeadJoints(std::vector<float>& joints)
     {
         if (pitch > 0.25f)
         {
-            // Debugging for testing 6/1/13
-            std::cout << "Clipping pitch to .25 radians!" << std::endl;
             pitch = 0.25f;
         }
     }

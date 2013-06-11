@@ -44,11 +44,13 @@ def checkCorner(tracker):
     """
     Look to nearest corner for localization, then return to tracking the ball.
     """
+    if tracker.counter == 0:
+        #tracker.helper.lookToNearestCornerWithinDist(20000)
+        print "send command to helper: look to static corner"
+        tracker.helper.lookToStaticCorner()
+
     if not tracker.helper.isActive():
         return tracker.goLater('waitThenTrack')
-
-    if tracker.counter == 1:
-        tracker.helper.lookToNearestCornerWithinDist(200)
 
     return tracker.stay()
 
@@ -61,12 +63,15 @@ def waitThenTrack(tracker):
 
 # Part of the corner state cycle
 def returnPanAndTrack(tracker):
-    if tracker.counter == 1:
+    if tracker.counter == 0:
+        print "looking back to 0 yaw"
         tracker.target = tracker.brain.ball.vis
         tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
         return tracker.stay()
     elif not tracker.helper.isActive() or tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
         return tracker.goLater(tracker.postCornerState)
+
+    return tracker.stay()
 
 def lookStraightThenTrack(tracker):
     """

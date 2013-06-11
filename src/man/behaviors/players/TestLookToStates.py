@@ -1,21 +1,35 @@
+import noggin_constants as Constants
 
 def gameInitial(player):
     if player.firstFrame():
         player.gainsOn()
-        player.brain.tracker.helper.lookToNearestCornerWithinDist(10000)
 
     #player.brain.tracker.helper.printHeadAngles()
 
     return player.stay()
 
 def gameReady(player):
+    if player.firstFrame():
+        player.stand()
+
     return player.stay()
 
 def gameSet(player):
     return player.stay()
 
 def gamePlaying(player):
-    return player.goLater('standup')
+    if player.firstFrame():
+        #reset initial loc
+        player.brain.resetLocTo(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
+                                Constants.LANDMARK_BLUE_GOAL_CROSS_Y,
+                                Constants.HEADING_LEFT)
+        player.brain.tracker.checkCorners()
+
+    if player.counter < 3:
+        print "my loc is: " + str(player.brain.loc.x) + ", " + str(player.brain.loc.y) + ", " + str(player.brain.loc.h)
+
+    return player.stay()
+    #return player.goLater('standup')
 
 def gamePenalized(player):
     if player.firstFrame():

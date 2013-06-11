@@ -161,6 +161,11 @@ const degrees RobotLocation::getRelativeBearing(Location& other)
     return (NBMath::subPIAngle(headingToInRad(other) - h)) * TO_DEG;
 }
 
+const degrees RobotLocation::hackGetRelativeBearing(RelRobotLocation& other)
+{
+    return (NBMath::subPIAngle(NBMath::safe_atan2((other.getRelY()), (other.getRelX())) - h) * TO_DEG);
+}
+
 // Returns -1, 0, 1 to tell the robot which way to spin
 const float RobotLocation::spinDirToPoint(Location& other)
 {

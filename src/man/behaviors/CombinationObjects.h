@@ -121,6 +121,7 @@ namespace behaviors {
 
         // Other
         const degrees getRelativeBearing(Location& other);
+        const degrees hackGetRelativeBearing(RelRobotLocation& other);
         const float spinDirToPoint(Location& other);
         const float hackDistTo(const RelRobotLocation& other);
 

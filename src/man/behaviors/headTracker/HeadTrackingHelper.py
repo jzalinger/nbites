@@ -256,12 +256,19 @@ class HeadTrackingHelper(object):
     def cornerToRelRobotLocation(self, corner):
         myLoc = self.tracker.brain.loc
         target = RobotLocation(corner[0],corner[1],0)
-        return myLoc.relativeRobotLocationOf(target)
+
+        print "my loc is: " + str(myLoc.x) + ", " + str(myLoc.y) + ", " + str(myLoc.h)
+        print "target loc is: " + str(target.x) + ", " + str(target.y)
+
+        return target - myLoc
 
     # @param target: must be a relRobotLocation
     def yawDiffToLookAtTarget(self, target):
-        bearing = self.tracker.brain.loc.getRelativeBearing(target)
+        bearing = self.tracker.brain.loc.hackGetRelativeBearing(target)
         curYaw  = degrees(self.tracker.brain.interface.joints.head_yaw)
+
+        print "bearing is: " + str(bearing)
+        print "curYaw is: " + str(curYaw)
 
         yawDiff = bearing - curYaw
 
@@ -269,6 +276,18 @@ class HeadTrackingHelper(object):
             return -1
         else:
             return yawDiff
+
+    # Testing method
+    def lookToStaticCorner(self):
+        corner = self.cornerToRelRobotLocation(Constants.LANDMARK_MY_GOAL_LEFT_L)
+
+        print "(global) rel target loc is: " + str(corner.relX) + ", " + str(corner.relY)
+
+        yawDiff = self.yawDiffToLookAtTarget(corner)
+
+        print "executing helper method"
+        print "yawdiff is: " + str(yawDiff)
+        self.executeHeadMove(self.lookToAngle(yawDiff))
 
     # Basic output for troubleshooting
     def printHeadAngles(self):
