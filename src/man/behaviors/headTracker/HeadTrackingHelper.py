@@ -177,6 +177,7 @@ class HeadTrackingHelper(object):
 
         command.timestamp = int(self.tracker.brain.time * 1000)
 
+    # Generalize this method, states, API,  with method trackObject
     def trackStationaryObject(self):
         # Note: safe to call every frame.
         target = self.tracker.target
@@ -217,12 +218,6 @@ class HeadTrackingHelper(object):
         and set the necessary angles to look at those coordinates.
         '''
         pass
-        # command = self.tracker.brain.interface.headMotionCommand
-        # command.type = command.CommandType.COORD_HEAD_COMMAND
-
-        # command.coord_command.rel_x = rel_x
-        # command.coord_command.rel_y = rel_y
-        # command.timestamp = int(self.tracker.brain.time * 1000)
 
     # TODO: make robust when target doesn't have a rel_y attribute
     def lookToPoint(self, target):
@@ -234,6 +229,7 @@ class HeadTrackingHelper(object):
         else:
             self.executeHeadMove(HeadMoves.FIXED_PITCH_LOOK_RIGHT)
 
+    # TODO: use param time/speed
     def lookToAngle(self, yaw, time = 2.0):
         """
         Returns a headmove that will make the robot
@@ -264,30 +260,26 @@ class HeadTrackingHelper(object):
     def closerThanDist(self, corner):
         return self.tracker.brain.loc.distTo(corner) < self.cornerDistanceThreshold
 
-    # @param corner: tuple consisting of x, y, ID
-    def cornerToRelLocation(self, corner):
-        myLoc = RobotLocation(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
-                              Constants.LANDMARK_BLUE_GOAL_CROSS_Y,
-                              Constants.HEADING_LEFT)
-        target = Location(corner[0],corner[1])
+    # @param cornerList: tuples consisting of x, y, ID
+    def cornersToLocations(self, cornerList):
+        locationList = []
 
-        #print "myLoc hard coded: " + myLoc.__str__()
-        #print "target loc: " + target.__str__()
+        # Build a Location object out of every corner tuple
+        for corner in cornerList:
+            locationList.append(Location(corner[0],corner[1]))
 
-        return myLoc.relativeLocationOf(target)
+        return locationList
 
-    # Testing method
-    def lookToStaticCorner(self):
+    # @param corner: must be a Location
+    def lookToCorner(self, corner):
         myLoc = self.tracker.brain.loc
-        corner = Constants.LANDMARK_MY_GOAL_LEFT_L
-        location = Location(corner[0], corner[1])
-        yaw = myLoc.getRelativeBearing(location)
+        yaw = myLoc.getRelativeBearing(corner)
 
         if fabs(yaw) < 119.5: # within hardware joint limit
             self.executeHeadMove(self.lookToAngle(yaw))
 
         #print "DEBUG:"
-        #print "corner's location: " + str(location.x) + ", " + str(location.y)
+        #print "corner's location: " + str(corner.x) + ", " + str(corner.y)
         #print "yaw: " + str(yaw)
 
     # Basic output for troubleshooting
