@@ -63,9 +63,8 @@ def waitThenTrack(tracker):
 # Part of the corner state cycle
 def returnPanAndTrack(tracker):
     if tracker.counter == 0:
-        print "looking back to 0 yaw"
         tracker.target = tracker.brain.ball.vis
-        tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw)
+        tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
         return tracker.stay()
     elif not tracker.helper.isActive() or tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
         return tracker.goLater(tracker.postCornerState)

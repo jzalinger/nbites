@@ -80,7 +80,7 @@ class HeadTrackingHelper(object):
         destination = (headMoveYaw, headMovePitch)
         self.executeHeadMove(self.makeHeadMoveWithSpeed(destination))
 
-    def makeHeadMoveWithSpeed(destination, speed = TrackingConstants.DEFAULT_PAN_RATE):
+    def makeHeadMoveWithSpeed(self, destination, speed = TrackingConstants.DEFAULT_PAN_RATE):
         """
         Given the destination yaw and pitch and a speed (in degrees per second),
         calculates the difference from current joint angles and returns
@@ -246,7 +246,7 @@ class HeadTrackingHelper(object):
         else:
             pitch = 17.0
 
-        return makeHeadMoveWithSpeed( (yaw,pitch) )
+        return self.makeHeadMoveWithSpeed( (yaw,pitch) )
 
     # @method: minimizes delta yaw. not safe to call every frame.
     # Probably broken as of 6/11/13
@@ -278,15 +278,13 @@ class HeadTrackingHelper(object):
 
     # Testing method
     def lookToStaticCorner(self):
-        myLoc = RobotLocation(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
-                              Constants.LANDMARK_BLUE_GOAL_CROSS_Y,
-                              Constants.HEADING_LEFT)
+        myLoc = self.tracker.brain.loc
         corner = Constants.LANDMARK_MY_GOAL_LEFT_L
         location = Location(corner[0], corner[1])
         yaw = myLoc.getRelativeBearing(location)
 
         if fabs(yaw) < 119.5: # within hardware joint limit
-            self.executeHeadMove(self.lookToAngle(yaw)
+            self.executeHeadMove(self.lookToAngle(yaw))
 
         #print "DEBUG:"
         #print "corner's location: " + str(location.x) + ", " + str(location.y)
