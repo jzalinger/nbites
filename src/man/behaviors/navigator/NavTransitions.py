@@ -5,6 +5,7 @@ from ..util import MyMath
 import noggin_constants as NogginConstants
 from ..players import ChaseBallTransitions
 from . import NavHelper as helper
+from objects import RelRobotLocation
 
 DEBUG = True
 
@@ -20,67 +21,34 @@ def atDestination(nav):
 
     if (not helper.isDestinationRelative(states.goToPosition.dest)):
         # HACK HACK '30's below should be loc uncerts.
-        return relDest.within((x + 30, y + 30, h + 30))
+        return relDest.within((x + 10, y + 10, h + 10))
     else:
         return relDest.within((x, y, h))
 
-def shouldDodgeLeft(nav):
+# Transition: Should I perform a dodge? Also sets up the direction.
+def shouldDodge(nav):
+    # If nav isn't avoiding things, just no
     if not states.goToPosition.avoidObstacles:
         return False
 
-    # check sonars
-    sonarState = nav.brain.interface.sonarState
-    sonars = (sonarState.us_right != -1 and
-              sonarState.us_right < constants.AVOID_OBSTACLE_SIDE_DIST)
+    # Get the obstacle model
+    pos = nav.brain.interface.obstacle.position
 
-    #check vision
-    vision = nav.brain.interface.visionObstacle.on_right
-
-    #check feet
-    footBumperState = nav.brain.interface.footBumperState
-    feet = (footBumperState.r_foot_bumper_left.pressed or
-            footBumperState.r_foot_bumper_right.pressed)
-
-    # FIXME: sonars aren't working!
-    if (feet or vision):
+    # If the obstacle module has decided that there is an obstacle,
+    # tell dodge and doneDodging what it is in case we go into a dodge
+    if pos is not pos.NONE:
+        states.dodge.position = pos
+        doneDodging.position = pos
         return True
-    # if (vision and sonars):
-    #     return True
-    # elif (sonars and feet):
-    #     return True
 
-    else:
-        return False
+    # Otherwise, nope
+    return False
 
-def shouldDodgeRight(nav):
-    if not states.goToPosition.avoidObstacles:
-        return False
-
-    # check sonars
-    sonarState = nav.brain.interface.sonarState
-    sonars = (sonarState.us_left != -1 and
-              sonarState.us_left < constants.AVOID_OBSTACLE_SIDE_DIST)
-    #check vision
-    vision = nav.brain.interface.visionObstacle.on_left
-
-    #check feet
-    footBumperState = nav.brain.interface.footBumperState
-    feet = (footBumperState.l_foot_bumper_left.pressed or
-            footBumperState.l_foot_bumper_right.pressed)
-
-    # FIXME: sonars aren't working!
-    if (feet or vision):
-        return True
-    # if (vision and sonars):
-    #     return True
-    # elif (sonars and feet):
-    #     return True
-
-    else:
-        return False
-
+# Check if an obstacle is no longer there, or if we've completed the dodge
 def doneDodging(nav):
-    return nav.brain.interface.motionStatus.standing
+    return (nav.brain.interface.motionStatus.standing or
+            (nav.brain.interface.obstacle.position is not
+             doneDodging.position))
 
 def notAtLocPosition(nav):
     return not atDestination(nav)

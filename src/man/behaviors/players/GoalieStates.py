@@ -7,7 +7,7 @@ from .. import SweetMoves
 from GoalieConstants import RIGHT, LEFT
 import noggin_constants as Constants
 
-SAVING = False
+SAVING = True
 
 def gameInitial(player):
     if player.firstFrame():
@@ -19,6 +19,13 @@ def gameInitial(player):
         player.zeroHeads()
         player.side = LEFT
         player.isSaving = False
+        player.lastStiffStatus = True
+
+    # If stiffnesses were JUST turned on, then stand up.
+    if player.lastStiffStatus == False and player.brain.interface.stiffStatus.on:
+        player.stand()
+    # Remember last stiffness.
+    player.lastStiffStatus = player.brain.interface.stiffStatus.on
 
     return player.stay()
 
@@ -31,7 +38,7 @@ def gameReady(player):
         player.stand()
         player.brain.tracker.lookToAngle(0)
         if player.lastDiffState != 'gameInitial':
-            player.brain.nav.walkTo(RelRobotLocation(120, 0, 0))
+            player.brain.nav.walkTo(RelRobotLocation(-80, 0, 0))
 
     # Wait until the sensors are calibrated before moving.
     if(not player.brain.motion.calibrated):
@@ -44,6 +51,7 @@ def gameSet(player):
         player.inKickingState = False
         player.brain.fallController.enabled = False
         player.gameState = player.currentState
+        player.returningFromPenalty = False
         player.penaltyKicking = False
         player.stand()
         player.brain.interface.motionRequest.reset_odometry = True
@@ -51,6 +59,9 @@ def gameSet(player):
 
         # The ball will be right in front of us, for sure
         player.brain.tracker.lookToAngle(0)
+
+    # The goalie always gets manually positioned, so reset loc to there.
+    player.brain.resetGoalieLocalization()
 
     # Wait until the sensors are calibrated before moving.
     if (not player.brain.motion.calibrated):
@@ -106,6 +117,9 @@ def gameFinished(player):
         player.zeroHeads()
         player.executeMove(SweetMoves.SIT_POS)
         return player.stay()
+
+    if player.brain.nav.isStopped():
+        player.gainsOff()
 
     return player.stay()
 

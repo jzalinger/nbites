@@ -139,11 +139,11 @@ class KickInformation:
         if not self.haveData:
             return
 
-        if DEBUG_KICK_DECISION:
-            print "Total far goal sightings (sum both posts): ",\
-                len(self.farGoalLeftPostBearings)+len(self.farGoalRightPostBearings)
-            print "Total near goal sightings (sum both posts): ",\
-                len(self.nearGoalLeftPostBearings)+len(self.nearGoalRightPostBearings)
+        # if DEBUG_KICK_DECISION:
+        #     print "Total far goal sightings (sum both posts): ",\
+        #         len(self.farGoalLeftPostBearings)+len(self.farGoalRightPostBearings)
+        #     print "Total near goal sightings (sum both posts): ",\
+        #         len(self.nearGoalLeftPostBearings)+len(self.nearGoalRightPostBearings)
 
         # bearing averages
         # Need more than 7 frames of each post to consider it "real".
@@ -190,9 +190,9 @@ class KickInformation:
         elif self.nearRightPostBearing is not None:
             self.nearAvgPostDist = self.nearRightPostDist
 
-        if DEBUG_KICK_DECISION:
-            print "near reds: ",self.nearGoalieRed
-            print "near navys: ",self.nearGoalieNavy
+        # if DEBUG_KICK_DECISION:
+        #     print "near reds: ",self.nearGoalieRed
+        #     print "near navys: ",self.nearGoalieNavy
 
         # Determine visual dangerous goalie
         # Note that the values should be double the sightings:
@@ -237,38 +237,71 @@ class KickInformation:
 
             # Get the bearing for the shot, i.e. from the ball to the goal.
             # Note: currently always aimCenter
-            goalLocation = Objects.Location(constants.FIELD_WHITE_RIGHT_SIDELINE_X,constants.CENTER_FIELD_Y)
+            goalCenter = Objects.Location(constants.FIELD_WHITE_RIGHT_SIDELINE_X,
+                                          constants.CENTER_FIELD_Y)
+            goalLeft   = Objects.Location(constants.LANDMARK_OPP_GOAL_LEFT_POST_X,
+                                          constants.LANDMARK_OPP_GOAL_LEFT_POST_Y)
+            goalRight  = Objects.Location(constants.LANDMARK_OPP_GOAL_RIGHT_POST_X,
+                                          constants.LANDMARK_OPP_GOAL_RIGHT_POST_Y)
+
             ballLocation = Objects.Location(self.brain.ball.x, self.brain.ball.y)
-            relLocationBallToGoal = ballLocation.relativeLocationOf(goalLocation)
-            headingBallToGoal = ballLocation.headingTo(goalLocation)
+
+            headingBallToGoalCenter = ballLocation.headingTo(goalCenter)
+            headingBallToGoalLeft   = ballLocation.headingTo(goalLeft)
+            headingBallToGoalRight  = ballLocation.headingTo(goalRight)
+
+            if DEBUG_KICK_DECISION:
+                print "Heading from the ball to the goal center: " + str(headingBallToGoalCenter)
+                print "My global heading on the field: " + str(self.brain.loc.h)
 
             # Assume our heading at the ball will equal our current heading
             # We shouldn't be spinning at this point, so the assumption is valid.
             # Note: both headings are in degrees at this point.
-            bearingForKick = headingBallToGoal - self.brain.loc.h
+            bearingForKick = headingBallToGoalCenter - self.brain.loc.h
+            bearingLimitLeft = headingBallToGoalLeft - headingBallToGoalCenter
+            bearingLimitRight = headingBallToGoalRight - headingBallToGoalCenter
 
-            if bearingForKick < 35 and bearingForKick > -35:
+            if DEBUG_KICK_DECISION:
+                print ("Acceptable bearing range for kick: " + str(bearingLimitLeft/2) +
+                       "/" + str(bearingLimitRight/2))
+
+            if bearingForKick < 45 and bearingForKick > -45:
                 #choose straight kick!
                 kick = self.chooseQuickFrontKick()
                 kick.h = 0 - bearingForKick
-            elif bearingForKick > 35 and bearingForKick < 125:
+            elif bearingForKick > 45: #and bearingForKick < 125:
                 #choose a right side kick! (using right foot)
                 kick = kicks.RIGHT_SIDE_KICK
                 kick.h = 70 - bearingForKick
-            elif bearingForKick < -35 and bearingForKick > -125:
+            elif bearingForKick < -45: #and bearingForKick > -125:
                 #choose a left side kick! (using left foot)
                 kick = kicks.LEFT_SIDE_KICK
                 kick.h = -70 - bearingForKick
             else:
-                #choose a back kick!
+                # "choose a back kick!"
                 kick = self.chooseBackKick()
                 if bearingForKick < -125:
                     kick.h = -180 - bearingForKick
                 else:
                     kick.h = 180 - bearingForKick
 
+            # If we're already close enough to the correct bearing to score, don't orbit.
+            if bearingForKick < bearingLimitLeft/2 and bearingForKick > bearingLimitRight/2:
+                kick.h = 0
+
+            # If we're defending near our goal box, just kick it: clearing the ball
+            # is more important than being super accurate.
+            if (self.brain.loc.x < constants.LANDMARK_MY_FIELD_CROSS[0] and
+                self.brain.loc.y < constants.MY_GOALBOX_TOP_Y and
+                self.brain.loc.y > constants.MY_GOALBOX_BOTTOM_Y):
+                kick.h = 0
+
             # Make sure heading is an int before passing it to the orbit.
             kick.h = int(kick.h)
+
+            if DEBUG_KICK_DECISION:
+                print "Returning a kick with heading: " + str(kick.h)
+
             return kick
 
 
@@ -521,6 +554,7 @@ class KickInformation:
         # Assert: I have my global heading and coordinates of the ball.
 
         if DEBUG_KICK_DECISION:
+            print "chose a clear kick."
             print "myGlobalHeading: ",myGlobalHeading
             print "ballX: ",ballX
             print "ballY: ",ballY

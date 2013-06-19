@@ -48,6 +48,13 @@ namespace vision {
 Field::Field(Vision* vis, Threshold * thr)
   : vision(vis), thresh(thr)
 {
+	// NOTE: leave this in please, else I will "git blame" and cut off your
+	// funding. - chown
+#ifdef OFFLINE
+	debugFieldEdge = false;
+	debugDrawFieldEdge = true;
+	debugHorizon = false;
+#endif
 }
 
 /* As part of finding the convex hull, we need to know where the
@@ -58,57 +65,126 @@ Field::Field(Vision* vis, Threshold * thr)
    @param pH    the horizon found by findGreenHorizon
 */
 void Field::initialScanForTopGreenPoints(int pH) {
-    int good, ok, top;
-    unsigned char pixel;
-    int topGreen = 0;
-    int greenRun = 0;
-    // we need a better criteria for what the top is
-    for (int i = 0; i < HULLS; i++) {
-        good = 0;
-        ok = 0;
-        int poseProject = thresh->yellow->yProject(0, pH, i * SCANSIZE);
-        if (poseProject <= 0) {
-            poseProject = 0;
-        } else if (pH == 0) {
-            poseProject = 0;
-        }
-        topGreen = IMAGE_HEIGHT - 1;
-        greenRun = 0;
-        for (top = max(poseProject, 0);
-             good < RUNSIZE && top < IMAGE_HEIGHT; top++) {
-            // scan until we find a run of green pixels
-            int x = i * SCANSIZE;
-            if (i == HULLS - 1) {
-                x--;
+	int good, ok, top;
+	unsigned char pixel;
+	int topGreen = 0;
+	int greenRun = 0;
+    float possible = 0.0f;
+	int lastGreen;
+    const float BUFFER = 200.0f; // other fields should be farther than this
+	// we need a better criteria for what the top is
+	for (int i = 0; i < HULLS; i++) {
+		good = 0;
+		ok = 0;
+		int poseProject = thresh->yellow->yProject(0, pH, i * SCANSIZE);
+		if (poseProject <= 0) {
+			poseProject = 0;
+		} else if (pH == 0) {
+			poseProject = 0;
+		}
+		topGreen = IMAGE_HEIGHT - 1;
+		greenRun = 0;
+		lastGreen = 0;
+		for (top = max(poseProject, 0);
+				good < RUNSIZE && top < IMAGE_HEIGHT; top++) {
+			// scan until we find a run of green pixels
+			int x = i * SCANSIZE;
+			if (i == HULLS - 1) {
+				x--;
+			}
+			pixel = thresh->getColor(x, top);
+            // watch out for patches of green off the field
+            if (topGreen != IMAGE_HEIGHT - 1 &&
+				top - lastGreen  >  5 &&
+                possible - thresh->getPixDistance(top) > BUFFER / 2) {
+				if (debugFieldEdge) {
+					cout << "Detected bad patch " << x << " " << top << " " << lastGreen << endl;
+				}
+                topGreen = IMAGE_HEIGHT - 1;
             }
-            pixel = thresh->getColor(x, top);
-            //pixel = thresh->thresholded[top][x];
-            if (Utility::isGreen(pixel) || Utility::isOrange(pixel)) {
-                good++;
-                greenRun++;
-                if (greenRun > 3 && topGreen == IMAGE_HEIGHT - 1) {
-                    topGreen = top - greenRun;
+			//pixel = thresh->thresholded[top][x];
+			if (Utility::isGreen(pixel)) {
+				lastGreen = top;
+				good++;
+				greenRun++;
+				if (greenRun > 3 && topGreen == IMAGE_HEIGHT - 1) {
+					topGreen = top - greenRun;
+                    possible = thresh->getPixDistance(topGreen);
+					if (debugFieldEdge) {
+						cout << "Setting topGreen " << x << " " << topGreen << endl;
+						vision->drawPoint(x, topGreen, BLUE);
+					}
+				}
+                // before we finish make sure we haven't seen another field
+                if (good == RUNSIZE) {
+                    float topDist = thresh->getPixDistance(topGreen);
+                    float newDist = thresh->getPixDistance(top);
+                    if (topDist > BUFFER) {
+						int check = top;
+						int greens = 0;
+						int check2 = top;
+						int whites = 0;
+						bool found = false;
+						while ((thresh->getPixDistance(check) > BUFFER ||
+								check < IMAGE_HEIGHT / 2) && !found && check < IMAGE_HEIGHT - 1) {
+							check++;
+							pixel = thresh->getColor(x, check);
+							greens = 0;
+							while (Utility::isGreen(pixel) && check < IMAGE_HEIGHT - 1 &&
+								   greens < 6) {
+								check++;
+								greens++;
+								pixel = thresh->getColor(x, check);
+							}
+							if (greens >= 6) {
+								check2 = check;
+								found = true;
+							} else if (greens > 2) {
+								check2 = check;
+							}
+							while (!Utility::isGreen(pixel) && check < IMAGE_HEIGHT - 1) {
+								check++;
+								if (Utility::isWhite(pixel)) {
+									whites++;
+								}
+								pixel = thresh->getColor(x, check);
+							}
+							if (thresh->getPixDistance(check2) - thresh->getPixDistance(check)
+								> BUFFER / 2 && check - check2 > 5 && check - check2 - whites > 4) {
+								if (debugFieldEdge) {
+									cout << "Unsetting top green " <<
+										(thresh->getPixDistance(check2) - thresh->getPixDistance(check))
+										 << endl;
+								}
+								topGreen = IMAGE_HEIGHT - 1;
+								top = check;
+								good = 1;
+								greenRun = 1;
+								check = IMAGE_HEIGHT - 1;
+							}
+						}
+                    }
                 }
-            } else if (Utility::isOrange(pixel) || Utility::isWhite(pixel)) {
-                //good++;
-                greenRun = 0;
-            } else if (Utility::isUndefined(pixel)) {
-                ok++;
-                if (ok > SCANNOISE) {
-                    good = 0;
-                    ok = 0;
-                }
-                greenRun = 0;
-            } else {
-                good = 0;
-                ok = 0;
-                greenRun = 0;
-            }
-        }
-        if (good == RUNSIZE) {
-            convex[i] = point<int>(i * SCANSIZE, topGreen);
-            if (poseProject < 0 && topGreen < 10) {
-                convex[i] = point<int>(i * SCANSIZE, 0);
+			} else if (Utility::isOrange(pixel) || Utility::isWhite(pixel)) {
+				//good++;
+				greenRun = 0;
+			} else if (Utility::isUndefined(pixel)) {
+				ok++;
+				if (ok > SCANNOISE) {
+					good = 0;
+					ok = 0;
+				}
+				greenRun = 0;
+			} else {
+				good = 0;
+				ok = 0;
+				greenRun = 0;
+			}
+		}
+		if (good == RUNSIZE) {
+			convex[i] = point<int>(i * SCANSIZE, topGreen);
+			if (poseProject < 0 && topGreen < 10) {
+				convex[i] = point<int>(i * SCANSIZE, 0);
             }
         } else {
             convex[i] = point<int>(i * SCANSIZE, IMAGE_HEIGHT);
@@ -118,8 +194,8 @@ void Field::initialScanForTopGreenPoints(int pH) {
         }
     }
     // look for odd spikes and quell them
-    if (poseHorizon > -100) {
-        for (good = 1; good < HULLS - 1; good++) {
+    /*if (poseHorizon > -100) {
+        for (good = 4; good < HULLS - 4; good++) {
             if (convex[good-1].y - convex[good].y > 15 && convex[good+1].y -
                 convex[good].y > 15) {
                 if (debugFieldEdge) {
@@ -129,7 +205,14 @@ void Field::initialScanForTopGreenPoints(int pH) {
                 convex[good].y = convex[good-1].y;
             }
         }
-    }
+		// special case for the edges
+		if (convex[HULLS - 2].y - convex[HULLS - 1].y > 15) {
+			convex[HULLS - 1].y = convex[HULLS - 2].y;
+		}
+		if (convex[1].y - convex[0].y > 15) {
+			convex[0].y = convex[1].y;
+		}
+		}*/
     for (good = 0; convex[good].y == IMAGE_HEIGHT && good < HULLS; good++) {}
     if (good < HULLS) {
         for (int i = good-1; i > -1; i--) {
@@ -161,6 +244,8 @@ void Field::findTopEdges(int M) {
     topEdge[0] = convex[0].y;
     float maxPix = 0.0f;
     estimate e;
+	peak = -1;
+	float maxLine = 1000.0f;
     for (int i = 1; i <= M; i++) {
         int diff = convex[i].y - convex[i-1].y;
         float step = 0.0f;
@@ -171,15 +256,19 @@ void Field::findTopEdges(int M) {
         for (int j = convex[i].x; j > convex[i-1].x; j--) {
             cur -= step;
             topEdge[j] = (int)cur;
-            if (debugFieldEdge) {
+			if (cur < maxLine) {
+				peak = j;
+				maxLine = cur;
+			}
+            if (debugDrawFieldEdge) {
                 if (j < convex[i].x - 2) {
-                    vision->drawPoint(j, (int)cur, BLACK);
+                    vision->drawPoint(j, (int)cur, BLUE);
                 } else {
                     vision->drawPoint(j, (int)cur, RED);
                 }
             }
         }
-        if (debugFieldEdge) {
+        if (debugDrawFieldEdge) {
             vision->drawLine(convex[i-1].x, convex[i-1].y, convex[i].x,
                              convex[i].y, ORANGE);
         }
@@ -206,6 +295,18 @@ void Field::findTopEdges(int M) {
                " there are " << M << " points." << endl;
         cout << "Max dist is " << maxPix << endl;
     }
+}
+
+/* Provides a rough guidline to whether the horizon slopes to the right or left
+   or is roughly horizontal;
+ */
+int Field::findSlant() {
+	if (topEdge[0] > topEdge[IMAGE_HEIGHT - 1] + 20) {
+		return 1;
+	} else if (topEdge[IMAGE_HEIGHT - 1] > topEdge[0] + 20) {
+		return -1;
+	}
+	return 0;
 }
 
 /** Find the convex hull of the field.    We've already found the point of maximal
@@ -285,6 +386,7 @@ int Field::getInitialHorizonEstimate(int pH) {
     int run, greenPixels, scanY;
     register int i, j;
     unsigned char pixel; //, lastPixel;
+	int best = -1;
 
     int pixelsNeeded = MIN_PIXELS_HARDER;
     if (pH < -100) {
@@ -295,6 +397,13 @@ int Field::getInitialHorizonEstimate(int pH) {
     greenPixels = 0;         // count for any given line
     scanY = 0;                 // which line are we scanning
     int firstpix = 0;
+	/*int find = IMAGE_HEIGHT - 1;
+	// see if there are any gaps that are relatively far away
+	while (thresh->getPixDistance(find) < 250 && find > 0) {
+		find--;
+	}
+	if (find > 0) {
+	}*/
     // we're going to do this backwards of how we used to - we start at the pose
     // horizon and scan down.  This will provide an initial estimate
     for (j = max(0, pH); j < IMAGE_HEIGHT && horizon == -1; j+=SCAN_INTERVAL_Y) {
@@ -319,8 +428,8 @@ int Field::getInitialHorizonEstimate(int pH) {
         }
         // once we see enough green we're done
         if (greenPixels > pixelsNeeded) {
-            return j;
-        }
+			return j;
+		}
     }
     return j;
 }

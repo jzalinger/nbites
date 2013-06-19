@@ -137,6 +137,16 @@ def shouldFindBallKick(player):
     """
     return (player.brain.ball.vis.frames_off > constants.BALL_OFF_KICK_THRESH)
 
+def ballMoved(player):
+    """
+    Ball has moved away from where it was seen when positioning. We probably
+    dribbled through it.
+    """
+    ball = player.brain.ball
+    ballBefore = player.ballBeforeKick
+    return (fabs(ball.rel_x - ballBefore.rel_x) > constants.BALL_MOVED_THR or
+            fabs(ball.rel_y - ballBefore.rel_y) > constants.BALL_MOVED_THR)
+
 def shouldSpinFindBall(player):
     """
     Should spin if we already tried scanning

@@ -162,7 +162,7 @@ namespace vision {
 		////////////////////////////////////////////////////////////
 		// Intersect Lines constants
 		////////////////////////////////////////////////////////////
-		static const int MAX_GREEN_PERCENT_ALLOWED_AT_CORNER = 70;
+		static const int MAX_GREEN_PERCENT_ALLOWED_AT_CORNER = 60;
 
 		// Two many duplicate intersection points indicate we are at the
 		// center circle
@@ -176,8 +176,8 @@ namespace vision {
 		static const int INTERSECT_MAX_ORTHOGONAL_EXTENSION =
 			static_cast<int>(.05 * IMAGE_WIDTH);
 		// for dupeCorner() checks
-		static const int DUPE_MIN_X_SEPARATION = 15;
-		static const int DUPE_MIN_Y_SEPARATION = 15;
+		static const int DUPE_MIN_X_SEPARATION = 20;
+		static const int DUPE_MIN_Y_SEPARATION = 20;
 		static const int DUPE_MIN_DIST_SEPARATION = 30;
 
 		static const int MAX_CORNER_DISTANCE = 600;

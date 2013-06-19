@@ -439,7 +439,9 @@ Blob Robots::correctBlob(Blob area){
 
 bool Robots::sanityChecks(Blob candidate, Cross* cross) {
     const int blobHeightMin = 8;
+	const int blobWidthMin = 6;
     int height = candidate.height();
+	int width = candidate.width();
 	int bottom = candidate.getBottom();
     if (candidate.getRight() > 0) {
         // the bottom of the uniform shouldn't be above field horizon
@@ -447,13 +449,8 @@ bool Robots::sanityChecks(Blob candidate, Cross* cross) {
 		//  return false;
         //}
         // blobs must be big enough
-        if (candidate.height() < blobHeightMin) {
+        if (height < blobHeightMin || width < blobWidthMin) {
             return false;
-        }
-        // uniforms should be wider than they are tall
-        if (candidate.height() > 2*candidate.width()) {
-
-			return false;
         }
         // there ought to be some white below the uniform
         if (bottom < IMAGE_HEIGHT - 10 &&
@@ -471,13 +468,13 @@ bool Robots::sanityChecks(Blob candidate, Cross* cross) {
 			}
             return false;
         }
-        if (candidate.getTop() > candidate.height() * 2
+        /*if (candidate.getTop() > candidate.height() * 2
             && !whiteAbove(candidate)) {
 			if (debugRobots) {
 				cout << "Got rid for lack of white above" << endl;
 			}
             return false;
-        }
+			}*/
         // for some blobs we check even harder for white
         if (height < 2 * blobHeightMin && noWhite(candidate)) {
 			if (debugRobots) {
@@ -488,6 +485,9 @@ bool Robots::sanityChecks(Blob candidate, Cross* cross) {
 
 		if (color == NAVY_BIT && vision->pose->getHorizonY(0) < 0 &&
 			notGreen(candidate)) {
+			if (debugRobots) {
+				cout << "Scared of a possible navy robot" << endl;
+			}
 			return false;
 		}
         return true;
@@ -845,7 +845,12 @@ bool Robots::noWhite(Blob b) {
 void Robots::updateRobots(int which, int index)
 {
 	if (debugRobots) {
-		cout << "Updating robot " << which << " " << color << endl;
+		cout << "Updating robot " << which;
+		if (color == RED_BIT) {
+			cout << " Red " << endl;
+		} else {
+			cout << " Navy " << endl;
+		}
 	}
 	//printBlob(blobs[index]);
 	if (color == RED_BIT) {

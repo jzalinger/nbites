@@ -35,11 +35,11 @@ import RobotLocation_proto
 import BallModel_proto
 import PMotion_proto
 import MotionStatus_proto
-import SonarState_proto
 import VisionRobot_proto
 import VisionField_proto
 import ButtonState_proto
 import FallStatus_proto
+import StiffnessControl_proto
 
 class Brain(object):
     """
@@ -252,24 +252,25 @@ class Brain(object):
         Note: Loc uses truly global coordinates, and the
               blue goalbox constants always match up with our goal.
         """
+        # Does this matter for the goalie? It really shouldn't...
         if self.playerNumber == 1:
-            self.resetLocTo(Constants.BLUE_GOALBOX_RIGHT_X,
+            self.resetLocTo(Constants.MIDFIELD_X,
                             Constants.FIELD_WHITE_BOTTOM_SIDELINE_Y,
                             Constants.HEADING_UP)
         elif self.playerNumber == 2:
-            self.resetLocTo(Constants.BLUE_GOALBOX_RIGHT_X,
+            self.resetLocTo(Constants.BLUE_GOALBOX_MIDPOINT_X,
                             Constants.FIELD_WHITE_TOP_SIDELINE_Y,
                             Constants.HEADING_DOWN)
         elif self.playerNumber == 3:
-            self.resetLocTo(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
+            self.resetLocTo(Constants.BLUE_GOALBOX_MIDPOINT_X,
                             Constants.FIELD_WHITE_BOTTOM_SIDELINE_Y,
                             Constants.HEADING_UP)
         elif self.playerNumber == 4:
-            self.resetLocTo(Constants.BLUE_CROSS_CIRCLE_MIDPOINT_X,
+            self.resetLocTo(Constants.BLUE_GOALBOX_CROSS_MIDPOINT_X,
                             Constants.FIELD_WHITE_TOP_SIDELINE_Y,
                             Constants.HEADING_DOWN)
         elif self.playerNumber == 5:
-            self.resetLocTo(Constants.BLUE_CROSS_CIRCLE_MIDPOINT_X,
+            self.resetLocTo(Constants.BLUE_GOALBOX_CROSS_MIDPOINT_X,
                             Constants.FIELD_WHITE_BOTTOM_SIDELINE_Y,
                             Constants.HEADING_UP)
 
@@ -311,6 +312,20 @@ class Brain(object):
                                 gameSetResetUncertainties)
             #self.loc.resetLocToSide(False)
 
+    def checkSetLocalization(self):
+        """
+        Use during the first frame of the set state.
+        If we think we are on the opponent's side of the field, either
+            1) We didn't make it back and will be manually positioned or
+            2) Our loc is wrong, and we could be anywhere.
+        Reset to our own field cross. The loc system should be able to
+        recover from there with high probability. 6/13/13
+        """
+        if self.loc.x > Constants.MIDFIELD_X:
+            self.resetLocTo(Constants.LANDMARK_MY_FIELD_CROSS[0],
+                            Constants.LANDMARK_MY_FIELD_CROSS[1],
+                            Constants.HEADING_RIGHT)
+
     def resetLocalizationFromPenalty(self, top):
         """
         Resets localization from penalty.
@@ -329,21 +344,14 @@ class Brain(object):
         """
         Resets the goalie's localization to the manual position in the goalbox.
         """
-        if self.gameController.teamColor == Constants.teamColor.TEAM_BLUE:
-            self.resetLocTo(Constants.FIELD_WHITE_LEFT_SIDELINE_X,
-                                Constants.MIDFIELD_Y,
-                                Constants.HEADING_RIGHT,
-                                _localization.LocNormalParams(15.0, 15.0, 1.0))
-        else:
-            self.resetLocTo(Constants.FIELD_WHITE_RIGHT_SIDELINE_X,
-                                Constants.MIDFIELD_Y,
-                                Constants.HEADING_LEFT,
-                                _localization.LocNormalParams(15.0, 15.0, 1.0))
+        self.resetLocTo(Constants.FIELD_WHITE_LEFT_SIDELINE_X,
+                        Constants.MIDFIELD_Y,
+                        Constants.HEADING_RIGHT)
 
-
-    #TODO: write this method!
     def resetPenaltyKickLocalization(self):
-        pass
+        self.resetLocTo(Constants.LANDMARK_OPP_FIELD_CROSS[0] - 1.0,
+                        Constants.MIDFIELD_Y,
+                        Constants.HEADING_RIGHT)
 
     # THIS IS A HACK!
     # ... but until we have a world contextor or some such, it's a necessary one.

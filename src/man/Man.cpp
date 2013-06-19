@@ -9,7 +9,8 @@
 
 #ifndef OFFLINE
 SET_POOL_SIZE(messages::WorldModel,  24);
-SET_POOL_SIZE(messages::JointAngles, 16);
+SET_POOL_SIZE(messages::JointAngles, 24);
+SET_POOL_SIZE(messages::InertialState, 16);
 SET_POOL_SIZE(messages::PackedImage16, 16);
 SET_POOL_SIZE(messages::YUVImage, 16);
 SET_POOL_SIZE(messages::RobotLocation, 16);
@@ -23,6 +24,7 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
       sensors(broker),
       jointEnactor(broker),
       motion(),
+      arms(),
       guardianThread("guardian", GUARDIAN_FRAME_LENGTH_uS),
       guardian(),
       audio(),
@@ -36,6 +38,7 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
       vision(),
       localization(),
       ballTrack(),
+      obstacle(),
       gamestate(MY_TEAM_NUMBER, MY_PLAYER_NUMBER),
       behaviors(MY_TEAM_NUMBER, MY_PLAYER_NUMBER),
       leds(broker)
@@ -64,6 +67,7 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
 #endif
     sensorsThread.addModule(jointEnactor);
     sensorsThread.addModule(motion);
+    sensorsThread.addModule(arms);
 
     sensors.printInput.wireTo(&guardian.printJointsOutput, true);
 
@@ -78,6 +82,10 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
 
     jointEnactor.jointsInput_.wireTo(&motion.jointsOutput_);
     jointEnactor.stiffnessInput_.wireTo(&motion.stiffnessOutput_);
+
+    arms.actualJointsIn.wireTo(&sensors.jointsOutput_);
+    arms.expectedJointsIn.wireTo(&motion.jointsOutput_);
+    arms.handSpeedsIn.wireTo(&motion.handSpeedsOutput_);
 
     /** Guardian **/
     guardianThread.addModule(guardian);
@@ -127,9 +135,15 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
     cognitionThread.addModule(vision);
     cognitionThread.addModule(localization);
     cognitionThread.addModule(ballTrack);
+    cognitionThread.addModule(obstacle);
     cognitionThread.addModule(gamestate);
     cognitionThread.addModule(behaviors);
     cognitionThread.addModule(leds);
+
+    topTranscriber.jointsIn.wireTo(&sensors.jointsOutput_, true);
+    topTranscriber.inertsIn.wireTo(&sensors.inertialsOutput_, true);
+    bottomTranscriber.jointsIn.wireTo(&sensors.jointsOutput_, true);
+    bottomTranscriber.inertsIn.wireTo(&sensors.inertialsOutput_, true);
 
     topConverter.imageIn.wireTo(&topTranscriber.imageOut);
     bottomConverter.imageIn.wireTo(&bottomTranscriber.imageOut);
@@ -144,8 +158,8 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
     vision.botUImage.wireTo(&bottomConverter.uImage);
     vision.botVImage.wireTo(&bottomConverter.vImage);
 
-    vision.joint_angles.wireTo(&sensors.jointsOutput_, true);
-    vision.inertial_state.wireTo(&sensors.inertialsOutput_, true);
+    vision.joint_angles.wireTo(&topTranscriber.jointsOut, true);
+    vision.inertial_state.wireTo(&topTranscriber.inertsOut, true);
 
     localization.visionInput.wireTo(&vision.vision_field);
     localization.motionInput.wireTo(&motion.odometryOutput_, true);
@@ -154,6 +168,9 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
     ballTrack.visionBallInput.wireTo(&vision.vision_ball);
     ballTrack.odometryInput.wireTo(&motion.odometryOutput_, true);
     ballTrack.localizationInput.wireTo(&localization.output);
+
+    obstacle.armContactIn.wireTo(&arms.contactOut, true);
+    obstacle.sonarIn.wireTo(&sensors.sonarsOutput_, true);
 
     gamestate.commInput.wireTo(&comm._gameStateOutput, true);
     gamestate.buttonPressInput.wireTo(&guardian.advanceStateOutput, true);
@@ -170,9 +187,10 @@ Man::Man(boost::shared_ptr<AL::ALBroker> broker, const std::string &name)
     behaviors.fallStatusIn.wireTo(&guardian.fallStatusOutput, true);
     behaviors.motionStatusIn.wireTo(&motion.motionStatusOutput_, true);
     behaviors.odometryIn.wireTo(&motion.odometryOutput_, true);
-    behaviors.sonarStateIn.wireTo(&sensors.sonarsOutput_, true);
-    behaviors.footBumperStateIn.wireTo(&sensors.footbumperOutput_, true);
     behaviors.jointsIn.wireTo(&sensors.jointsOutput_, true);
+    behaviors.stiffStatusIn.wireTo(&sensors.stiffStatusOutput_, true);
+    behaviors.obstacleIn.wireTo(&obstacle.obstacleOut);
+
     for (int i = 0; i < NUM_PLAYERS_PER_TEAM; ++i)
     {
         behaviors.worldModelIn[i].wireTo(comm._worldModels[i], true);

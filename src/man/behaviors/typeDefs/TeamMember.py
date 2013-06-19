@@ -92,7 +92,9 @@ class TeamMember(RobotLocation):
         self.subRole = self.brain.play.subRole
         self.chaseTime = self.determineChaseTime()
 
-        self.active = (not self.isPenalized())
+        self.active = (not self.isPenalized() and
+                       not (self.brain.playerNumber == 1 and
+                            self.brain.player.returningFromPenalty))
 
         self.dribbling = (self.active and self.ballDist <=
                          BALL_TEAMMATE_DIST_DRIBBLING)
@@ -191,7 +193,8 @@ class TeamMember(RobotLocation):
         """
         this checks GameController to see if a player is penalized.
         """
-        return self.brain.interface.gameState.team(self.brain.gameController.teamColor).player(self.playerNumber-1).penalty
+        return (self.brain.interface.gameState.team(self.brain.gameController.teamColor).player(self.playerNumber-1).penalty
+                or self.brain.player.currentState == 'afterPenalty')
 
     def __str__(self):
         return "I am player number " + self.playerNumber

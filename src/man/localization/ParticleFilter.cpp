@@ -54,7 +54,7 @@ ParticleFilter::~ParticleFilter()
 void ParticleFilter::update(const messages::RobotLocation& odometryInput,
                             const messages::VisionField& visionInput)
 {
-    motionSystem->update(particles, odometryInput);
+    motionSystem->update(particles, odometryInput, nearMidField());
 
     // Update the Vision Model
     // set updated vision to determine if resampling necessary
@@ -64,6 +64,7 @@ void ParticleFilter::update(const messages::RobotLocation& odometryInput,
     if(updatedVision)
     {
         resample();
+
         updatedVision = false;
 
         //If shitty swarm according to vision, expand search
@@ -78,6 +79,11 @@ void ParticleFilter::update(const messages::RobotLocation& odometryInput,
 
     // Update filters estimate
     updateEstimate();
+
+    // std::cout << "Est line error:\t"
+    //           << visionSystem->getAvgLineError(poseEstimate,
+    //                                             visionInput)
+    //           << std::endl;
 }
 
 /**
@@ -326,7 +332,6 @@ void ParticleFilter::resetLocToSide(bool blueSide)
  */
 void ParticleFilter::resample()
 {
-    //std::cout << "In resample" << std::endl;
     // Map each normalized weight to the corresponding particle.
     std::map<float, Particle> cdf;
 
@@ -347,8 +352,7 @@ void ParticleFilter::resample()
 
     // First add reconstructed particles from corner observations
     int numReconParticlesAdded = 0;
-    if (lost && (errorMagnitude > LOST_THRESHOLD)
-        && !nearMidField() )//&& visionSystem->getLastNumObsv() > 1 )
+    if (lost && (errorMagnitude > LOST_THRESHOLD)&& visionSystem->getLastNumObsv() > 1)
     {
         std::list<ReconstructedLocation> reconLocs = visionSystem->getReconstructedLocations();
         std::list<ReconstructedLocation>::const_iterator recLocIt;
@@ -356,18 +360,18 @@ void ParticleFilter::resample()
              recLocIt != reconLocs.end();
              recLocIt ++)
         {
-            if ((*recLocIt).defSide == onDefendingSide())
-            {
-                Particle reconstructedParticle((*recLocIt).x,
-                                               (*recLocIt).y,
-                                               (*recLocIt).h,
-                                               1.f/250.f);
+            // If the reconstructions is on the same side and not near midfield
+            if ( ((*recLocIt).defSide == onDefendingSide())
+                 && (fabs((*recLocIt).x - CENTER_FIELD_X) > 120)) {
+                     Particle reconstructedParticle((*recLocIt).x,
+                                                    (*recLocIt).y,
+                                                    (*recLocIt).h,
+                                                    1.f/250.f);
 
-                newParticles.push_back(reconstructedParticle);
+                     newParticles.push_back(reconstructedParticle);
+                     numReconParticlesAdded++;
             }
-            numReconParticlesAdded++;
         }
-
 #ifdef DEBUG_LOC
         std::cout << "Injected " << numReconParticlesAdded << " particles" << std::endl;
 #endif
@@ -378,9 +382,11 @@ void ParticleFilter::resample()
     for(int i = 0; i < (parameters.numParticles - (float)numReconParticlesAdded); ++i)
     {
         rand = (float)gen();
-        newParticles.push_back(cdf.upper_bound(rand)->second);
+        if(cdf.upper_bound(rand) == cdf.end())
+            newParticles.push_back(cdf.begin()->second); // Return something that DEF exists
+        else
+            newParticles.push_back(cdf.upper_bound(rand)->second);
     }
-
     particles = newParticles;
 }
 

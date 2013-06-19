@@ -82,20 +82,22 @@ include_directories( support )
 include_directories( motion/bhwalk ) # @todo hack?
 
 # Actual modules
+add_subdirectory( arms )
 add_subdirectory( audio )
 add_subdirectory( balltrack )
 add_subdirectory( behaviors )
 add_subdirectory( comm )
-add_subdirectory( guardian )
 add_subdirectory( gamestate )
+add_subdirectory( guardian )
 add_subdirectory( image )
+add_subdirectory( jointenactor )
 add_subdirectory( led )
+add_subdirectory( localization )
 add_subdirectory( log )
+add_subdirectory( motion )
+add_subdirectory( obstacle )
 add_subdirectory( sensors )
 add_subdirectory( vision )
-add_subdirectory( motion )
-add_subdirectory( jointenactor )
-add_subdirectory( localization )
 
 set( MAN_SRCS main.cpp
   Man.cpp
@@ -110,24 +112,26 @@ add_library(
 
 target_link_libraries(
   man
+  arms
   audio
   balltrack
   behaviors
-  comm
-  support
-  guardian
-  jointenactor
-  motion
   bhwalk
+  comm
   gamestate
+  guardian
   image
+  jointenactor
   led
+  localization
   log
   messages
+  motion
+  obstacle
   portals
   sensors
+  support
   vision
-  localization
 )
 
 install( TARGETS man
