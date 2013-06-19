@@ -237,12 +237,15 @@ class HeadTrackingHelper(object):
 
         Note: Use as parameter for tracker.executeHeadMove()
         """
-        if fabs(yaw) > 55:
+        # Clip yaw for safety
+        clippedYaw = MyMath.clip(yaw, -119.5, 119.5) # hardware joint limit
+
+        if fabs(clippedYaw) > 55:
             pitch = 11.0
         else:
             pitch = 17.0
 
-        return self.makeHeadMoveWithSpeed( (yaw,pitch) )
+        return self.makeHeadMoveWithSpeed( (clippedYaw,pitch) )
 
     # @method: minimizes delta yaw. not safe to call every frame.
     # Probably broken as of 6/11/13
@@ -275,12 +278,28 @@ class HeadTrackingHelper(object):
         myLoc = self.tracker.brain.loc
         yaw = myLoc.getRelativeBearing(corner)
 
-        if fabs(yaw) < 119.5: # within hardware joint limit
-            self.executeHeadMove(self.lookToAngle(yaw))
+        self.executeHeadMove(self.lookToAngle(yaw))
 
         #print "DEBUG:"
         #print "corner's location: " + str(corner.x) + ", " + str(corner.y)
         #print "yaw: " + str(yaw)
+
+    def findVisualCornerForLoc(self):
+        """
+        Given where we are currently looking, determine the visual
+        corner with the most potential to be useful for loc and
+        return it (for tracking method).
+        """
+
+        visionField = self.tracker.brain.interface.visionField
+        visualCorners = []
+        visualCornerRanking = []
+
+        for corner in range(visionField.visual_corner_size):
+            visualCorners.append(corner)
+            visualCornerRanking.append(constants.SHAPE_RANK(corner.corner_type))
+
+        return visualCorners[visualCornerRanking.index(max(visualCornerRanking))].visual_detection
 
     # Basic output for troubleshooting
     def printHeadAngles(self):

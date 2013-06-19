@@ -46,15 +46,28 @@ def checkCorner(tracker):
     """
     if tracker.counter == 0:
         #tracker.helper.lookToNearestCornerWithinDist(20000)
-        tracker.helper.lookToStaticCorner()
+        tracker.helper.lookToCorner(constants.LANDMARK_MY_GOAL_LEFT_L)
 
     if tracker.counter > 0 and not tracker.helper.isActive():
-        return tracker.goLater('waitThenTrack')
+        return tracker.goLater('trackBestCorner')
 
     return tracker.stay()
 
 # Part of the corner state cycle
-def waitThenTrack(tracker):
+def trackBestCorner(tracker):
+    """
+    Wait until we're looking at where we think the corner is
+    according to loc. Try to find a visual corner that is useful
+    and refocus on that.
+    """
+    # Set the target
+    if tracker.firstFrame():
+        tracker.target = tracker.helper.findVisualCornerForLoc()
+
+    # Track every frame
+    tracker.helper.trackObject()
+
+    # Once past time thresh, continue to next state in cycle
     if tracker.counter > constants.CORNER_CHECK_TIME:
         return tracker.goLater('returnPanAndTrack')
 
@@ -62,7 +75,7 @@ def waitThenTrack(tracker):
 
 # Part of the corner state cycle
 def returnPanAndTrack(tracker):
-    if tracker.counter == 0:
+    if tracker.firstFrame():
         tracker.target = tracker.brain.ball.vis
         tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
         return tracker.stay()
