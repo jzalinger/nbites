@@ -46,7 +46,7 @@ def checkCorner(tracker):
     """
     if tracker.counter == 0:
         #tracker.helper.lookToNearestCornerWithinDist(20000)
-        tracker.helper.lookToCorner(constants.LANDMARK_MY_GOAL_LEFT_L)
+        tracker.helper.lookToCorner(NogginConstants.LANDMARK_MY_GOAL_LEFT_L)
 
     if tracker.counter > 0 and not tracker.helper.isActive():
         return tracker.goLater('trackBestCorner')
@@ -63,6 +63,9 @@ def trackBestCorner(tracker):
     # Set the target
     if tracker.firstFrame():
         tracker.target = tracker.helper.findVisualCornerForLoc()
+        # Safety check if there were no corners in sight
+        if tracker.target is None:
+            return tracker.goLater('returnPanAndTrack')
 
     # Track every frame
     tracker.helper.trackObject()

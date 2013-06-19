@@ -219,7 +219,7 @@ class HeadTrackingHelper(object):
         '''
         pass
 
-    # TODO: make robust when target doesn't have a rel_y attribute
+    # URGENT TODO: make robust when target doesn't have a rel_y attribute
     def lookToPoint(self, target):
         """
         If the relative y is positive, look left. Otherwise, look right.
@@ -273,10 +273,14 @@ class HeadTrackingHelper(object):
 
         return locationList
 
-    # @param corner: must be a Location
+    # @param corner: must be a Location or an x,y,ID tuple
     def lookToCorner(self, corner):
         myLoc = self.tracker.brain.loc
-        yaw = myLoc.getRelativeBearing(corner)
+
+        if not isinstance(corner, Location):
+            yaw = myLoc.getRelativeBearing(Location(corner[0], corner[1]))
+        else:
+            yaw = myLoc.getRelativeBearing(corner)
 
         self.executeHeadMove(self.lookToAngle(yaw))
 
@@ -290,14 +294,17 @@ class HeadTrackingHelper(object):
         corner with the most potential to be useful for loc and
         return it (for tracking method).
         """
-
         visionField = self.tracker.brain.interface.visionField
         visualCorners = []
         visualCornerRanking = []
 
-        for corner in range(visionField.visual_corner_size):
-            visualCorners.append(corner)
-            visualCornerRanking.append(constants.SHAPE_RANK(corner.corner_type))
+        for corner in range(visionField.visual_corner_size()):
+            visualCorners.append(visionField.visual_corner(corner))
+            visualCornerRanking.append(TrackingConstants.SHAPE_RANK[visualCorners[-1].corner_type])
+
+        # safety check for empty list
+        if len(visualCorners) == 0:
+            return None
 
         return visualCorners[visualCornerRanking.index(max(visualCornerRanking))].visual_detection
 

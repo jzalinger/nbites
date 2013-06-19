@@ -19,14 +19,7 @@ def gameSet(player):
 
 def gamePlaying(player):
     if player.firstFrame():
-        #reset initial loc
-        player.brain.resetLocTo(Constants.LANDMARK_BLUE_GOAL_CROSS_X,
-                                Constants.LANDMARK_BLUE_GOAL_CROSS_Y,
-                                Constants.HEADING_LEFT)
         player.brain.tracker.checkCorners()
-
-    #if player.counter < 10:
-    #    print "my loc is: " + str(player.brain.loc.x) + ", " + str(player.brain.loc.y) + ", " + str(player.brain.loc.h)
 
     return player.stay()
     #return player.goLater('standup')
