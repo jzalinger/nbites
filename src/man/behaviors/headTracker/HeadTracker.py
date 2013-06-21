@@ -177,6 +177,7 @@ class HeadTracker(FSA.FSA):
 
         self.switchTo('lookToLocation')
 
+    # Double check this before using -Josh Zalinger
     def checkCornerThenTrackBall(self):
         """
         Look to nearest corner, then return to previous head
@@ -188,6 +189,7 @@ class HeadTracker(FSA.FSA):
             self.storedYaw = degrees(self.brain.interface.joints.head_yaw)
             self.switchTo('checkCorner')
 
+    # Double check this before using -Josh Zalinger
     def checkCorners(self):
         """
         Look to nearest corner. After some time has passed,

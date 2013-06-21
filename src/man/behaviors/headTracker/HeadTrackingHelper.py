@@ -327,6 +327,9 @@ class HeadTrackingHelper(object):
         """
         return = relLocation.bearing()
 
+    def convertLandmarkTupleToLocation(self, landmark):
+        return Location(landmark[0], landmark[1])
+
     # Basic output for troubleshooting
     def printHeadAngles(self):
         print ("Cur yaw: "   + str(self.tracker.brain.interface.joints.head_yaw) +
@@ -352,3 +355,24 @@ class HeadTrackingHelper(object):
         """
         return (isinstance(location, Location) or
                 isinstance(location, RelLoction))
+
+    def greenField(self):
+        """
+        Returns true if there are no visual objects in sight.
+        """
+        visField = self.tracker.brain.interface.VisionField
+
+        if visField.goal_post_l.visual_detection.on:
+            return False
+        if visField.goal_post_r.visual_detection.on:
+            return False
+        for corner in range(visField.visual_corner_size):
+            if visField.visual_corner(corner).visual_detection.on:
+                return False
+        for line in range(visField.visual_line_size):
+            if visField.visual_line(line).visual_detection.on:
+                return False
+        if visField.visual_cross.visual_detection.on:
+            return False
+
+        return True
