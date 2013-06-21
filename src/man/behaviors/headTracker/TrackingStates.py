@@ -33,60 +33,6 @@ def trackingFieldObject(tracker):
 
     return tracker.stay()
 
-# Not currently used, but would be good functionality to have in the future.
-def lookAtTarget(tracker):
-    """Look to the relative coords of the stored target, using localization."""
-    #tracker.helper.lookAtTarget(tracker.target)
-    return tracker.stay()
-
-# Enters the corner state cycle
-def checkCorner(tracker):
-    """
-    Look to nearest corner for localization, then return to tracking the ball.
-    """
-    if tracker.counter == 0:
-        #tracker.helper.lookToNearestCornerWithinDist(20000)
-        tracker.helper.lookToCorner(NogginConstants.LANDMARK_MY_GOAL_LEFT_L)
-
-    if tracker.counter > 0 and not tracker.helper.isActive():
-        return tracker.goLater('trackBestCorner')
-
-    return tracker.stay()
-
-# Part of the corner state cycle
-def trackBestCorner(tracker):
-    """
-    Wait until we're looking at where we think the corner is
-    according to loc. Try to find a visual corner that is useful
-    and refocus on that.
-    """
-    # Set the target
-    if tracker.firstFrame():
-        tracker.target = tracker.helper.findVisualCornerForLoc()
-        # Safety check if there were no corners in sight
-        if tracker.target is None:
-            return tracker.goLater('returnPanAndTrack')
-
-    # Track every frame
-    tracker.helper.trackObject()
-
-    # Once past time thresh, continue to next state in cycle
-    if tracker.counter > constants.CORNER_CHECK_TIME:
-        return tracker.goLater('returnPanAndTrack')
-
-    return tracker.stay()
-
-# Part of the corner state cycle
-def returnPanAndTrack(tracker):
-    if tracker.firstFrame():
-        tracker.target = tracker.brain.ball.vis
-        tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
-        return tracker.stay()
-    elif not tracker.helper.isActive() or tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
-        return tracker.goLater(tracker.postCornerState)
-
-    return tracker.stay()
-
 def lookStraightThenTrack(tracker):
     """
     Perform a 'look straight' head move.
@@ -145,5 +91,96 @@ def afterKickScan(tracker):
     """
     if tracker.firstFrame():
         tracker.performHeadMove(constants.KICK_DICT[tracker.kickName])
+
+    return tracker.stay()
+
+# Enter the lookAtLocation state cycle
+def lookToLocation(tracker):
+    """
+    Look to the current target, which should be a Location or RelLocation
+    """
+    if tracker.firstFrame():
+        tracker.helper.lookToLocation(tracker.target, tracker.lookToSpeed)
+        return tracker.stay()
+
+    if not tracker.helper.isActive:
+        return tracker.goLater('stareAtLocation')
+
+    if (tracker.lookButTrackBall and
+        tracker.brain.ball.vis.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH):
+        # Abandon this state cycle and track the ball
+        tracker.target = tracker.brain.ball.vis
+        return tracker.goLater('tracking')
+
+    return tracker.stay()
+
+# Part of the lookAtLocation state cycle
+def stareAtLocation(tracker):
+    """
+    Assert: we are currently looking at the location of interest.
+    Continue looking here for some time, or track something useful.
+    """
+    if tracker.stateTime > tracker.lookToWait:
+        return tracker.goLater('stop')
+        # do another state instead?
+
+    if tracker.helper.validateTarget(tracker.lookToTarget):
+        if tracker.lookToTarget.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
+            tracker.target = tracker.lookToTarget
+            tracker.helper.trackObject()
+
+    if (tracker.lookButTrackBall and
+        tracker.brain.ball.vis.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH):
+        # Abandon this state cycle and track the ball
+        tracker.target = tracker.brain.ball.vis
+        return tracker.goLater('tracking')
+
+    return tracker.stay()
+
+# Enters the corner state cycle
+def checkCorner(tracker):
+    """
+    Look to nearest corner for localization, then return to tracking the ball.
+    """
+    if tracker.firstFrame():
+        #tracker.helper.lookToNearestCornerWithinDist(20000)
+        tracker.helper.lookToCorner(NogginConstants.LANDMARK_MY_GOAL_LEFT_L)
+
+    if tracker.counter > 0 and not tracker.helper.isActive():
+        return tracker.goLater('trackBestCorner')
+
+    return tracker.stay()
+
+# Part of the corner state cycle
+def trackBestCorner(tracker):
+    """
+    Wait until we're looking at where we think the corner is
+    according to loc. Try to find a visual corner that is useful
+    and refocus on that.
+    """
+    # Set the target
+    if tracker.firstFrame():
+        tracker.target = tracker.helper.findVisualCornerForLoc()
+        # Safety check if there were no corners in sight
+        if tracker.target is None:
+            return tracker.goLater('returnPanAndTrack')
+
+    # Track every frame
+    tracker.helper.trackObject()
+
+    # Once past time thresh, continue to next state in cycle
+    if tracker.counter > constants.CORNER_CHECK_TIME:
+        return tracker.goLater('returnPanAndTrack')
+
+    return tracker.stay()
+
+# Part of the corner state cycle
+def returnPanAndTrack(tracker):
+    if tracker.firstFrame():
+        tracker.target = tracker.brain.ball.vis
+        tracker.helper.executeHeadMove(tracker.helper.lookToAngle(tracker.storedYaw))
+        return tracker.stay()
+    elif not tracker.helper.isActive() or tracker.target.frames_on > constants.TRACKER_FRAMES_ON_TRACK_THRESH:
+        return tracker.goLater(tracker.postCornerState)
 
     return tracker.stay()

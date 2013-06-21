@@ -4,7 +4,7 @@ from ..util import MyMath as MyMath
 from .. import StiffnessModes
 from math import fabs, degrees
 import HeadMoves
-from objects import Location, RobotLocation, RelRobotLocation
+from objects import Location, RobotLocation, RelLocation, RelRobotLocation
 
 class HeadTrackingHelper(object):
     def __init__(self, tracker):
@@ -136,6 +136,11 @@ class HeadTrackingHelper(object):
         """
         # Note: safe to call every frame.
 
+        # Safety check on the target
+        if not self.validateTarget(self.tracker.target):
+            print "Trying to track an invalid target."
+            return
+
         target = self.tracker.target
         changeX, changeY = 0.0, 0.0
 
@@ -180,6 +185,12 @@ class HeadTrackingHelper(object):
     # Generalize this method, states, API,  with method trackObject
     def trackStationaryObject(self):
         # Note: safe to call every frame.
+
+        # Safety check on the target
+        if not self.validateTarget(self.tracker.target):
+            print "Trying to track an invalid target."
+            return
+
         target = self.tracker.target
         changeX, changeY = 0.0, 0.0
 
@@ -211,14 +222,6 @@ class HeadTrackingHelper(object):
 
         command.timestamp = int(self.tracker.brain.time * 1000)
 
-    # Functionality mostly replaced by other methods. unsafe to call as of 6/1/13
-    def lookAtTarget(self, rel_x, rel_y):
-        '''
-        Given relative coordinates, sends a command that will calculate
-        and set the necessary angles to look at those coordinates.
-        '''
-        pass
-
     # URGENT TODO: make robust when target doesn't have a rel_y attribute
     def lookToPoint(self, target):
         """
@@ -229,8 +232,7 @@ class HeadTrackingHelper(object):
         else:
             self.executeHeadMove(HeadMoves.FIXED_PITCH_LOOK_RIGHT)
 
-    # TODO: use param time/speed
-    def lookToAngle(self, yaw, time = 2.0):
+    def lookToAngle(self, yaw, speed = TrackingConstants.DEFAULT_PAN_RATE):
         """
         Returns a headmove that will make the robot
         look to the given yaw at an appropriate (fixed) pitch.
@@ -245,23 +247,7 @@ class HeadTrackingHelper(object):
         else:
             pitch = 17.0
 
-        return self.makeHeadMoveWithSpeed( (clippedYaw,pitch) )
-
-    # @method: minimizes delta yaw. not safe to call every frame.
-    # Probably broken as of 6/11/13
-    def lookToNearestCornerWithinDist(self, distance):
-        self.cornerDistanceThreshold = distance
-        allCorners = map(self.cornerToRelLocation, TrackingConstants.ALL_LANDMARK_CORNERS)
-        closeCorners = filter(self.closerThanDist, allCorners)
-        cornerYaws = map(self.yawDiffToLookAtTarget, closeCorners)
-        sortedYaws = sorted(cornerYaws, key=fabs)
-
-        self.executeHeadMove(self.lookToAngle(sortedYaws[0]))
-
-    # @method: helper for filtering in self.getAllCornersWithinDist
-    # @param corner: must be a location
-    def closerThanDist(self, corner):
-        return self.tracker.brain.loc.distTo(corner) < self.cornerDistanceThreshold
+        return self.makeHeadMoveWithSpeed((clippedYaw,pitch), speed)
 
     # @param cornerList: tuples consisting of x, y, ID
     def cornersToLocations(self, cornerList):
@@ -308,6 +294,39 @@ class HeadTrackingHelper(object):
 
         return visualCorners[visualCornerRanking.index(max(visualCornerRanking))].visual_detection
 
+    def lookToLocation(self, location, speed):
+        """
+        Given a Location or RelLocation, look to the correct yaw.
+        Pass the given speed through to lookToAngle.
+        """
+        if isinstance(location, Location):
+            bearing = self.bearingToLocation(location)
+        elif isinstance(location, RelLocation):
+            bearing = self.bearingToRelLocation(location)
+        else:
+            print "Passed an invalid location to HeadTrackingHelper."
+            return
+
+        # Check if the given speed is usable
+        if speed == -1:
+            self.executeHeadMove(self.lookToAngle(bearing))
+        else:
+            self.executeHeadMove(self.lookToAngle(bearing, speed))
+
+    def bearingToLocation(self, location):
+        """
+        Given a global Location, determine the bearing from our current loc.
+        """
+        myLoc = self.tracker.brain.loc
+        bearing = myLoc.getRelativeBearing(location)
+        return bearing
+
+    def bearingToRelLocation(self, relLocation):
+        """
+        Given a relative location, determine the bearing.
+        """
+        return = relLocation.bearing()
+
     # Basic output for troubleshooting
     def printHeadAngles(self):
         print ("Cur yaw: "   + str(self.tracker.brain.interface.joints.head_yaw) +
@@ -316,3 +335,20 @@ class HeadTrackingHelper(object):
     # Regardless of state, is the head moving?
     def isActive(self):
         return self.tracker.brain.motion.head_is_active
+
+    def validateTarget(self, newTarget):
+        """
+        Checks if the given newTarget has the needed attributes
+        to be used as a target for trackObject.
+        """
+        return (hasattr(newTarget, on) and
+                hasattr(newTarget, frames_off) and
+                hasattr(newTarget, frames_on) and
+                hasattr(newTarget, angle_x_deg))
+
+    def validateLocation(self, location):
+        """
+        Check if the parameter is a Location, RelLocation, or one of their children.
+        """
+        return (isinstance(location, Location) or
+                isinstance(location, RelLoction))

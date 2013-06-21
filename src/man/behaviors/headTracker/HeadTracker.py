@@ -37,7 +37,11 @@ class HeadTracker(FSA.FSA):
         # Set object variables
         self.target = None
         # default target is brain.ball.vis
-        # target should either be a visualBall or a FieldObject's visual_detection
+        # check via helper validator methods
+        self.lookToSpeed = -1 # will result in default from constants
+        self.lookToWait = 0.0
+        self.lookButTrackBall = False
+        self.lookToTarget = None
 
 
     """Note that all API methods are safe to call every frame."""
@@ -148,6 +152,31 @@ class HeadTracker(FSA.FSA):
         self.kickName = name
         self.switchTo('afterKickScan')
 
+    def lookAtLocation(self, location, wait = 0, shouldTrackBall = False, speed = -1,
+                       secondaryTarget = None):
+        """
+        Looks at the 'location' at 'speed'.
+        If 'shouldTrackBall', will track the ball as soon as it is seen.
+        Will look at the location for 'wait' time.
+        While waiting, will track 'secondaryTarget' if seen.
+        """
+        # Robustly validate the parameter
+        if not self.helper.validateLocation(location):
+            print "Gave an invalid location to HeadTracker."
+            return
+
+        self.target = location
+        self.lookToWait = wait
+        self.lookButTrackBall = shouldTrackBall
+        self.lookToSpeed = speed
+
+        if self.helper.validateTarget(secondaryTarget):
+            self.lookToTarget = secondaryTarget
+        else:
+            self.lookToTarget = None
+
+        self.switchTo('lookToLocation')
+
     def checkCornerThenTrackBall(self):
         """
         Look to nearest corner, then return to previous head
@@ -171,11 +200,3 @@ class HeadTracker(FSA.FSA):
             self.currentState is not 'waitThenTrack' and
             self.currentState is not 'returnPanAndTrack'):
             self.switchTo('checkCorner')
-
-    # Not currently used, but would be good functionality to have in the future.
-    # TODO: add this functionality back in
-    # @param target: must be a relRobotLocation
-    def lookAtTarget(self, target):
-        """Look towards given target, using localization values."""
-        self.target = target
-        self.switchTo('lookAtTarget')
