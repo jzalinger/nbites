@@ -432,3 +432,68 @@ class Brain(object):
         if reset_h > 180:
             reset_h -= 360
         self.resetLocTo(reset_x, reset_y, reset_h)
+
+    # This is an attempt to flip our loc without comm.
+    def visualFlipLocFilter(self):
+        """
+        This is intended for use only when we're using a no-comm specific strategy.
+        If we see at least 2 robots of our color, the further back of the two is
+        guaranteed to be near our own goal. Use this information to flip loc.
+        """
+        visRobot = self.interface.visionRobot
+
+        if self.gameController.teamColor == Constants.teamColor.TEAM_BLUE:
+            if visRobot.navy2.on:
+                # We see multiple blue robots (our team). Check heading
+                pass
+        else:
+            if visRobot.red2.on:
+                # We see multiple red robots (out team. Check heading
+                pass
+
+        if my_ball_location.distTo(goalie_ball_location) < 100:
+            # I'm probably in the right place!
+            self.updateFlipFilters(1)
+        elif flipped_ball_location.distTo(goalie_ball_location) < 100:
+            # I'm probably flipped!
+            self.updateFlipFilters(-1)
+        else:
+            # I don't agree with the goalie. Ignore.
+            self.updateFlipFilters(0)
+
+        # If I've decided I should flip enough times, actually do it.
+        if (len(self.flipFilter) > 0 and
+            sum(self.flipFilter) > 6):
+            self.flipLoc()
+            # Reset filters! Don't want to flip again next frame.
+            self.noFlipFilter = []
+            self.flipFilter = []
+
+
+    def updateVisualFlipFilter(self, value):
+        self.visualFlipFilter.append(value)
+
+        # If the filter is too long, pop the oldest value.
+        if len(self.visualFlipFilter) > 10:
+            self.visualFlipFilter.pop(0)
+
+    def flipHeading(self):
+        """
+        We're playing with non-comm assumptions.
+        We saw multiple friendly robots, and determined our heading was wrong.
+        """
+
+        print "According to the Goalie, I need to flip my loc!"
+
+        if (self.playerNumber == TeamMember.DEFAULT_GOALIE_NUMBER):
+            # I am a goalie. Reset to the penatly box.
+            print "I am a goalie. Resetting loc to the goalbox."
+            self.resetGoalieLocalization()
+            return
+
+        reset_x = (-1*(self.loc.x - Constants.MIDFIELD_X)) + Constants.MIDFIELD_X
+        reset_y = (-1*(self.loc.y - Constants.MIDFIELD_Y)) + Constants.MIDFIELD_Y
+        reset_h = self.loc.h + 180
+        if reset_h > 180:
+            reset_h -= 360
+        self.resetLocTo(reset_x, reset_y, reset_h)
