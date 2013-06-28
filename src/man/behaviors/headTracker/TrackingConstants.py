@@ -1,6 +1,6 @@
 import HeadMoves
 
-USE_BOUNCE_TRACKING = False
+USE_BOUNCE_TRACKING = True
 
 MAX_PAN_SPEED = 125.0              # deg/sec
 

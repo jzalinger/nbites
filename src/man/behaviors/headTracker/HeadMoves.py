@@ -412,14 +412,20 @@ def BALLTRACK_PAN(dist, bear):
     max_left =   45.0
     max_right = -45.0
 
-    # keep the ball within 10 degrees of outside our sight
-    left_see_ball_max = bear + 20
-    right_see_ball_max = bear - 20
+    # keep the ball within 15 degrees of the center of our sight
+    left_see_ball_max = bear + 15
+    right_see_ball_max = bear - 15
 
     left_side_final  = min(max_left, left_see_ball_max)
     right_side_final = max(max_right, right_see_ball_max)
 
-    pan_time = (left_side_final + right_side_final) / deg_per_sec
+    pan_time = (left_side_final - right_side_final) / deg_per_sec
+
+    # debug printing
+    print "made a balltrack_pan."
+    print "panning left to " + str(left_side_final) + ", and right to " + str(right_side_final)
+    print "pan_time is " + str(pan_time)
+    print "ball info: dist is " + str(dist) + ", and bearing is " + str(bear)
 
     return ( ((left_side_final, 25.0), pan_time, 1, stiff.LOW_HEAD_STIFFNESSES),
              ((right_side_final,25.0), pan_time, 1, stiff.LOW_HEAD_STIFFNESSES))

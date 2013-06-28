@@ -25,7 +25,8 @@ def bounceTracking(tracker):
     """
     Just like the above, but using a different tracking method.
     """
-    tracker.helper.bounceTrackBall()
+    if not tracker.helper.isActive():
+        tracker.helper.bounceTrackBall()
 
     if tracker.target.vis.frames_off > constants.TRACKER_FRAMES_OFF_REFIND_THRESH:
         return tracker.goLater('bounceFullPan')
